@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
-        <link rel="stylesheet" href="css/login.css">
-        <title>Login</title>
-    </head>
-    <body>
+<?php
+    include "../header.php";
+?>
         <section class="container-fluid"> 
             <section class="row justify-content-center">
                 <section class="col-12 col-sm-6 col-md-3">
@@ -25,11 +19,11 @@
                             <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Repeat Password">
                         </div>
                         <button type="submit"  class="btn btn-primary">Sign up</button>
-                        <a class="btn btn-primary" href="login.html" role="button">Cancel</a>
+                        <a class="btn btn-primary" href="/login/" role="button">Return to login</a>
                     </form>
                 </section>
             </section>
         </section>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
-    </body>
-</html>
+<?php
+    include "../footer.php";
+?>

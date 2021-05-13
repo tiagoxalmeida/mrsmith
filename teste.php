@@ -113,7 +113,29 @@
           }
         });
 
-        var generateKeys = function () {
+        function generateKeys(keySize){
+          var crypt = new JSEncrypt({default_key_size: keySize});
+          var dt = new Date();
+          var time = -(dt.getTime());
+          $('#time-report').text('.');
+          var load = setInterval(function () {
+            var text = $('#time-report').text();
+            $('#time-report').text(text + '.');
+          }, 500);
+          crypt.getKey(function () {
+            clearInterval(load);
+            dt = new Date();
+            time += (dt.getTime());
+            console.log('Generated in ' + time + ' ms');
+            localStorage.setItem('pk',crypt.getPrivateKey());
+            localStorage.setItem('Pk',crypt.getPublicKey());
+          });
+          return;
+        }
+
+
+
+        /*var generateKeys = function () {
           var sKeySize = $('#key-size').attr('data-value');
           var keySize = parseInt(sKeySize);
           var crypt = new JSEncrypt({default_key_size: keySize});
@@ -142,11 +164,19 @@
           $('#time-report').text('Generated in ' + time + ' ms');
           $('#privkey').val(crypt.getPrivateKey());
           $('#pubkey').val(crypt.getPublicKey());
-        };
+        };*/
 
         // If they wish to generate new keys.
-        $('#generate').click(generateKeys);
-        generateKeys();
+        $('#generate').click(function (){generateKeys(512)});
+        generateKeys(512);
+        var data = {localStorage.getItem('pk')}
+        $.ajax({
+          type: "POST",
+          url: '/teste.php',
+          data: data,
+          success: success,
+          dataType: dataType
+        });
       });
     </script>
     

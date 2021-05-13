@@ -30,7 +30,14 @@
                 $row = mysqli_fetch_assoc($result_pwd);
                 
                 if($row != null){ //Se o array for diferente de null o elemento existe e sucesso
-                    echo "sucesso";
+                    $id = $row['u_id'];
+                    $query_online = "INSERT INTO online (u_id) VALUES ('$id')";
+                    if($result_online = mysqli_query($conn,$query_online)){
+                        echo "online";
+                    }else{
+                        echo "not online";
+                    }
+
                 }else{
                     echo "erro";
                 }

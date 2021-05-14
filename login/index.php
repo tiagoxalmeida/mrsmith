@@ -53,7 +53,7 @@
     }
 ?>
 
-<section class="container-sm p-4 mt-4 border border-dark rounded-2 w-75"> 
+<section class="col-sm-8 col-md-6 col-xl-4 p-4 mt-4 border border-dark rounded-2 mx-auto"> 
     <h1 class="text-center">Mr. Smith</h1>
     <form class="form-container needs-validation" method="post" action="" novalidate>
         <p class="h3">Login</p>
@@ -74,6 +74,7 @@
         <div class="mb-3">
             <span>Key Size:</span>
             <select class="form-control m-1" required>
+                <option value="" selected disabled>Selec an option</option>
                 <option value="512">512 Bits</option>
                 <option value="1024">1024 Bits</option>
                 <option value="2048">2048 Bits</option>
@@ -87,7 +88,7 @@
             <button type="submit"  class="btn btn-primary">Submit</button>
             <a class="btn btn-secondary" href="/sign-up/" role="button">Sign up</a>
         </div>
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between mt-4">
             <div class="d-inline-block text-left">
                 <a type="button" class="btn btn-info" href="/" role="button">Home</a>
             </div>

@@ -25,7 +25,7 @@
         }
     }
 ?>
-<section class="container-sm p-4 mt-4 border border-dark rounded-2 w-75">
+<section class="col-sm-8 col-md-6 col-xl-4 p-4 mt-4 border border-dark rounded-2 mx-auto">
     <h1 class="text-center">Mr. Smith</h1>          
     <form method="post" action="" class="form-container needs-validation" novalidate>
         <p class="h3 text-left">Sign up</p>
@@ -61,7 +61,7 @@
             <button type="submit"  class="btn btn-primary">Submit</button>
             <a class="btn btn-secondary" href="/login/" role="button">Login</a>
         </div>
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between mt-4">
             <div class="d-inline-block text-left">
                 <a type="button" class="btn btn-info" href="/" role="button">Home</a>
             </div>

@@ -25,3 +25,11 @@ CREATE TABLE online
   u_id INT NOT NULL,
   FOREIGN KEY (u_id) REFERENCES users(u_id)
 );
+
+CREATE TABLE request_connection
+(
+  rc_sender INT NOT NULL,
+  rc_receiver INT NOT NULL,
+  FOREIGN KEY (rc_sender) REFERENCES users(u_id),
+  FOREIGN KEY (rc_receiver) REFERENCES users(u_id)
+);

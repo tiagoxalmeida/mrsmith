@@ -148,7 +148,8 @@
         }
 
         function sendToServer(){
-          
+          <?php include "inc/server_keys.php"; ?>
+          var public_server = "<?php echo $SERVER_KEYS['public']; ?>";
           var data = {
             pk: localStorage.getItem('Pk')
           }; 

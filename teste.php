@@ -1,9 +1,20 @@
+<?php
+    if($_SERVER["REQUEST_METHOD"] == "POST"){
+      $privateKey = openssl_pkey_get_private($_POST['pk']);
+      openssl_private_decrypt(base64_decode($_POST['crypted']),$decrypted,$privateKey);
+      echo $decrypted;
+      exit;
+    }
+    ?>
 <html>
-    <head></head>
+    <head>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    </head>
     <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/js/jsencrypt.min.js"></script>
     <div class="row">
+    
       <div class="panel panel-default">
         <div class="panel-heading"><h1>Online RSA Key Generator</h1></div>
         <div class="panel-body">
@@ -113,27 +124,43 @@
           }
         });
 
+        function encrypt(publicKey, text){
+          var crypt = new JSEncrypt();
+          crypt.setPublicKey(publicKey);
+          return crypt.encrypt(text);
+        }
+
         function generateKeys(keySize){
+          $('#time-report').html('<div class="text-center"><div class="spinner-border m-1" role="status"></div><p>Generating Keys ...</p></div>');
           var crypt = new JSEncrypt({default_key_size: keySize});
           var dt = new Date();
           var time = -(dt.getTime());
-          $('#time-report').text('.');
-          var load = setInterval(function () {
-            var text = $('#time-report').text();
-            $('#time-report').text(text + '.');
-          }, 500);
           crypt.getKey(function () {
-            clearInterval(load);
             dt = new Date();
             time += (dt.getTime());
             console.log('Generated in ' + time + ' ms');
             localStorage.setItem('pk',crypt.getPrivateKey());
             localStorage.setItem('Pk',crypt.getPublicKey());
+            sendToServer(localStorage.getItem('Pk'););            
+            
           });
           return;
         }
 
-
+        function sendToServer(){
+          
+          var data = {
+            pk: localStorage.getItem('Pk')
+          }; 
+          $.ajax({
+            type: "POST",
+            url: '/teste.php',
+            data: data,
+            /*dataType: "JSON",*/
+            success: function (html){$('#time-report').html(html);},
+            error: function (html){$('#time-report').html(html);}
+          });
+        }
 
         /*var generateKeys = function () {
           var sKeySize = $('#key-size').attr('data-value');
@@ -169,14 +196,7 @@
         // If they wish to generate new keys.
         $('#generate').click(function (){generateKeys(512)});
         generateKeys(512);
-        var data = {localStorage.getItem('pk')}
-        $.ajax({
-          type: "POST",
-          url: '/teste.php',
-          data: data,
-          success: success,
-          dataType: dataType
-        });
+        
       });
     </script>
     

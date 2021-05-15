@@ -116,6 +116,67 @@
     });
   }, false);
 })();
+
+
+function RSAencrypt(publicKey, text){
+    var crypt = new JSEncrypt();
+    crypt.setPublicKey(publicKey);
+    console.log(publicKey);
+    return crypt.encrypt(text);
+}
+
+function generateKeys(keySize){
+    //$('#time-report').html('<div class="text-center"><div class="spinner-border m-1" role="status"></div><p>Generating Keys ...</p></div>');
+    var crypt = new JSEncrypt({default_key_size: keySize});
+    var dt = new Date();
+    var time = -(dt.getTime());
+    crypt.getKey(function () {
+        dt = new Date();
+        time += (dt.getTime());
+        localStorage.setItem('pk', crypt.getPrivateKey());
+        localStorage.setItem("Pk", crypt.getPublicKey());
+        sendToServer(localStorage.getItem("Pk"),localStorage.getItem("pk"));
+        //$('#time-report').html('');
+    });
+    return;
+}
+function sendToServer(publicKey,privateKey){
+    var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("inc/pub.pem")); ?>";
+    var partitionedPublic = [];
+    var partitionedPrivate = [];
+    var i = 0;
+    while (i < publicKey.length){
+        partitionedPublic.push(publicKey.slice(i,i+181));
+        i=i+181;
+    }
+    var encryptedPublic = [];
+    partitionedPublic.forEach(function(el,i){
+        var enc = RSAencrypt(public_key_server,el);
+        encryptedPublic.push(enc);
+    });
+    i=0;
+    while (i < privateKey.length){
+        partitionedPrivate.push(privateKey.slice(i,i+181));
+        i=i+181;
+    }
+    var encryptedPrivate = [];
+    partitionedPrivate.forEach(function(el,i){
+        var enc = RSAencrypt(public_key_server,el);
+        encryptedPrivate.push(enc);
+    });
+    var data = {
+        pk_encrypt: encryptedPublic,
+        Pk_encrypt: encryptedPrivate
+    }; 
+    $.ajax({
+        type: "POST",
+        url: '/login.php',
+        data: data,
+        /*dataType: "JSON",*/
+        success: function (html){$('#time-report').html(html);},
+        error: function (html){$('#time-report').html(html);}
+    });
+}
 </script>
 
 <?php

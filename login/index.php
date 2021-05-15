@@ -1,59 +1,8 @@
 <?php
     include "../header.php";
-    include "../inc/con_inc.php";
-
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $us = $_POST['username'];
-        $pwd = $_POST['pwd'];
-
-
-        if(!empty($us) && !empty($pwd)){ //Executar só se os campos estiverem preenchidos
-
-            $query_salt = "SELECT u_salt FROM users WHERE u_name = '$us'"; //query para ir buscar o salt pelo username
-
-            $result_salt = mysqli_query($conn,$query_salt);
-        
-            if(mysqli_num_rows($result_salt)>0){
-                $row = mysqli_fetch_assoc($result_salt);
-                $salt = $row["u_salt"]; //salt obtido
-            }else{
-                die("User not found");
-            }
-
-            mysqli_free_result($result_salt);
-
-            $rep = hash("sha256",$pwd.$salt,false); //representação da password para comparar
-            $query_pwd = "SELECT * FROM users WHERE u_pwd = '$rep' AND u_name = '$us'"; //buscar elemento com aquele us e pwd
-            $result_pwd = mysqli_query($conn,$query_pwd);
-        
-            if(mysqli_num_rows($result_pwd)>0){
-                $row = mysqli_fetch_assoc($result_pwd);
-                
-                if($row != null){ //Se o array for diferente de null o elemento existe e sucesso
-                    $id = $row['u_id'];
-                    $query_online = "INSERT INTO online (u_id) VALUES ('$id')";
-                    if($result_online = mysqli_query($conn,$query_online)){
-                        echo "online";
-                    }else{
-                        echo "not online";
-                    }
-
-                }else{
-                    echo "erro";
-                }
-
-            }else{
-                echo "erro";
-            }
-            mysqli_free_result($result_pwd);
-
-        }else{
-            echo "preencher campos";
-        }
-    }
 ?>
 
-<section class="col-sm-8 col-md-6 col-xl-4 p-4 mt-4 border border-dark rounded-2 mx-auto"> 
+<section class="col-sm-8 col-md-6 col-xl-4 p-4 mt-5 border border-dark rounded-2 mx-auto"> 
     <h1 class="text-center">Mr. Smith</h1>
     <form class="form-container needs-validation" method="post" action="" novalidate>
         <p class="h3">Login</p>
@@ -66,14 +15,14 @@
         </div>
         <div class="mb-3">
             <span>Password:</span>
-            <input type="password" class="form-control m-1" id="exampleInputPassword1" name="pwd" placeholder="Password" required>
+            <input type="password" class="form-control m-1" name="pwd" id="pwd" placeholder="Password" required>
             <div class="invalid-feedback">
                 Please provide a password.
             </div>
         </div>
         <div class="mb-3">
-            <span>Key Size:</span>
-            <select class="form-control m-1" required>
+            <span>Encryption Key Size:</span>
+            <select class="form-control m-1" id="keysize" required>
                 <option value="" selected disabled>Selec an option</option>
                 <option value="512">512 Bits</option>
                 <option value="1024">1024 Bits</option>
@@ -98,6 +47,18 @@
         </div>
     </form>
 </section>
+<div class="toast-container position-absolute bottom-0 end-0 translate-middle-x p-5">
+    <div class="toast" id="loadingToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto"></strong>
+            <small class="text-muted"><span>0</span> s</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+        </div>
+    </div>
+    
+</div>
 <script>
 (function() {
   'use strict';
@@ -107,41 +68,63 @@
     // Loop over them and prevent submission
     var validation = Array.prototype.filter.call(forms, function(form) {
       form.addEventListener('submit', function(event) {
-        if (form.checkValidity() === false) {
-          event.preventDefault();
-          event.stopPropagation();
+        event.preventDefault();
+        event.stopPropagation();
+        if (form.checkValidity() === true) {
+            generateKeys($('keysize').val());
         }
         form.classList.add('was-validated');
       }, false);
     });
   }, false);
 })();
-
-
+$('#loadingToast').on('hidden.bs.toast',function(){
+    $('.toast-container').attr('class',' toast-container position-absolute bottom-0 end-0 translate-middle-x p-5');
+    $('#loadingToast .text-muted').html("<span>0</span> s");
+    $(this).removeClass();
+    $(this).addClass('toast');
+});
+var options = {
+    animation: true
+};
+var toast = new bootstrap.Toast($('#loadingToast'),options);
 function RSAencrypt(publicKey, text){
     var crypt = new JSEncrypt();
     crypt.setPublicKey(publicKey);
-    console.log(publicKey);
     return crypt.encrypt(text);
 }
 
 function generateKeys(keySize){
+    $('#loadingToast .toast-body').html('<div class="text-center my-1">\
+                <div class="spinner-border" role="status">\
+                </div> \
+            </div>\
+            <div class="text">Your browser is creating the RSA encription keys at the keysize you choosed. Wait a moment please.</div>');
+    $('#loadingToast .me-auto').html('Creating Keys');
+    toast.show();
     //$('#time-report').html('<div class="text-center"><div class="spinner-border m-1" role="status"></div><p>Generating Keys ...</p></div>');
     var crypt = new JSEncrypt({default_key_size: keySize});
     var dt = new Date();
     var time = -(dt.getTime());
+    var load = setInterval(function () {
+        var text = $('#loadingToast .text-muted span').html();
+        $('#loadingToast .text-muted span').html((parseInt(text) + 1));
+    }, 1000);
     crypt.getKey(function () {
+        clearInterval(load);
         dt = new Date();
         time += (dt.getTime());
-        localStorage.setItem('pk', crypt.getPrivateKey());
-        localStorage.setItem("Pk", crypt.getPublicKey());
-        sendToServer(localStorage.getItem("Pk"),localStorage.getItem("pk"));
-        //$('#time-report').html('');
+        localStorage.setItem('pk_encrypt', crypt.getPrivateKey());
+        localStorage.setItem("Pk_encrypt", crypt.getPublicKey());
+        $('.toast.showing').removeClass('showing');
+        sendToServer(localStorage.getItem("Pk_encrypt"),localStorage.getItem("pk_encrypt"));
+        toast.hide();
     });
     return;
 }
 function sendToServer(publicKey,privateKey){
-    var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("inc/pub.pem")); ?>";
+
+    var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
     var partitionedPublic = [];
     var partitionedPrivate = [];
     var i = 0;
@@ -164,22 +147,57 @@ function sendToServer(publicKey,privateKey){
         var enc = RSAencrypt(public_key_server,el);
         encryptedPrivate.push(enc);
     });
+    
     var data = {
         pk_encrypt: encryptedPublic,
-        Pk_encrypt: encryptedPrivate
+        Pk_encrypt: encryptedPrivate,
+        username: $('#username').val(),
+        pwd: $('#pwd').val()
     }; 
     $.ajax({
         type: "POST",
-        url: '/login.php',
+        url: 'login.php',
         data: data,
-        /*dataType: "JSON",*/
-        success: function (html){$('#time-report').html(html);},
-        error: function (html){$('#time-report').html(html);}
+        dataType: "JSON",
+        success: function (html){console.log(html);
+            if(html.sucess){
+
+            }else{
+                var options = {
+                    animation: true,
+                    autohide: false
+                };
+                $('#loadingToast .text-muted').html("Just Now");
+                $('#loadingToast .toast-body').html('<button type="button" class="btn-close px-2" aria-label="Close"></button><p class="d-inline-block">'+html.error+'</p>');
+                $('#loadingToast').addClass('bg-danger');
+                $('#loadingToast').addClass('border-0');
+                $('#loadingToast .me-auto').html('Error');
+                
+                toast.show();
+                var forms = document.getElementsByClassName('was-validated')[0];
+                forms.className = "needs-validation";
+                $('#username').val('');
+                $('#pwd').val('');
+            }
+        },
+        error: function (html){console.log(html);
+            var options = {
+                animation: true
+            };
+            $('#loadingToast .text-muted').html("Just Now");
+            $('#loadingToast .toast-body').html('<button type="button" class="btn-close px-2" aria-label="Close"></button><p class="d-inline-block">Error In Server</p>');
+            
+            var toast = new bootstrap.Toast($('#loadingToast'),options);
+            toast.show();
+            toast.addEventListener('hidden.bs.toast',function(){
+                $('#loadingToast .text-muted').html("<span>0</span> s");
+            });
+        }
     });
 }
 </script>
 
 <?php
-    include "../inc/close_con.php";
+    
     include "../footer.php";
 ?>

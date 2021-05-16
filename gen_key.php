@@ -33,7 +33,7 @@
     echo $privkey."\n";
     // Get public key
     $pubkey=openssl_pkey_get_details($res);
-    //var_dump($res);
+    print_r($pubkey);
     $pubkey=$pubkey["key"];
     echo $pubkey;
     echo '</pre>';

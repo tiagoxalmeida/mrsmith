@@ -51,17 +51,16 @@
                             echo json_encode($responseObject);
                             exit;
                         }
-
                     }else{
                         $responseObject->success = false;
-                        $responseObject->error = "User already online";
+                        $responseObject->error = "User already online, try again later.";
                         echo json_encode($responseObject);
                         exit;
                     }
 
                 }else{
                     $responseObject->success = false;
-                    $responseObject->error = "User not found";
+                    $responseObject->error = "Password not matching";
                     echo json_encode($responseObject);
                     exit;
                 }
@@ -80,5 +79,10 @@
             echo json_encode($responseObject);
             exit;
         }
+    }else{
+        $responseObject->success = false;
+        $responseObject->error = "Wrong method";
+        echo json_encode($responseObject);
+        exit;
     }
     include "../inc/close_con.php";

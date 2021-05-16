@@ -1,7 +1,8 @@
 <?php
+    
     include "../header.php";
 ?>
-
+<script>$('head title').text($('head title').text()+" - Login");</script>
 <section class="col-sm-8 col-md-6 col-xl-4 p-4 mt-5 border border-dark rounded-2 mx-auto"> 
     <h1 class="text-center">Mr. Smith</h1>
     <form class="form-container needs-validation" method="post" action="" novalidate>
@@ -23,7 +24,7 @@
         <div class="mb-3">
             <span>Encryption Key Size:</span>
             <select class="form-control m-1" id="keysize" required>
-                <option value="" selected disabled>Selec an option</option>
+                <option value="" selected disabled>Select an option</option>
                 <option value="512">512 Bits</option>
                 <option value="1024">1024 Bits</option>
                 <option value="2048">2048 Bits</option>
@@ -47,17 +48,15 @@
         </div>
     </form>
 </section>
-<div class="toast-container position-absolute bottom-0 end-0 translate-middle-x p-5">
+<div class="toast-container position-absolute bottom-0 end-0 p-5">
     <div class="toast" id="loadingToast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto"></strong>
             <small class="text-muted"><span>0</span> s</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
         </div>
     </div>
-    
 </div>
 <script>
 (function() {
@@ -79,7 +78,7 @@
   }, false);
 })();
 $('#loadingToast').on('hidden.bs.toast',function(){
-    $('.toast-container').attr('class',' toast-container position-absolute bottom-0 end-0 translate-middle-x p-5');
+    $('.toast-container').attr('class',' toast-container position-absolute bottom-0 end-0 p-5');
     $('#loadingToast .text-muted').html("<span>0</span> s");
     $(this).removeClass();
     $(this).addClass('toast');
@@ -149,8 +148,8 @@ function sendToServer(publicKey,privateKey){
     });
     
     var data = {
-        pk_encrypt: encryptedPublic,
-        Pk_encrypt: encryptedPrivate,
+        Pk_encrypt: encryptedPublic,
+        pk_encrypt: encryptedPrivate,
         username: $('#username').val(),
         pwd: $('#pwd').val()
     }; 
@@ -160,20 +159,49 @@ function sendToServer(publicKey,privateKey){
         data: data,
         dataType: "JSON",
         success: function (html){console.log(html);
-            if(html.sucess){
-
+            if(html.success){
+                var options = {
+                    animation: true,
+                    autohide: false
+                };
+                var toasterror = $('<div class="toast bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                    <div class="toast-header">\
+                        <strong class="me-auto">Success</strong>\
+                        <small class="text-muted">Just Now</small>\
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                    </div>\
+                    <div class="toast-body text-center">\
+                        <h6 class="d-inline-block">We are taking you to the main page.</h6>\
+                    </div>\
+                </div>');
+                $('.toast-container').append(toasterror);
+                var terror = new bootstrap.Toast(toasterror);
+                terror.show();
+                var forms = document.getElementsByClassName('was-validated')[0];
+                forms.className = "needs-validation";
+                $('#username').val('');
+                $('#pwd').val('');
+                window.setTimeout(() => {
+                    window.location.href = "/inside/";
+                }, 3000);
             }else{
                 var options = {
                     animation: true,
                     autohide: false
                 };
-                $('#loadingToast .text-muted').html("Just Now");
-                $('#loadingToast .toast-body').html('<button type="button" class="btn-close px-2" aria-label="Close"></button><p class="d-inline-block">'+html.error+'</p>');
-                $('#loadingToast').addClass('bg-danger');
-                $('#loadingToast').addClass('border-0');
-                $('#loadingToast .me-auto').html('Error');
-                
-                toast.show();
+                var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                    <div class="toast-header">\
+                        <strong class="me-auto">Error</strong>\
+                        <small class="text-muted">Just Now</small>\
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                    </div>\
+                    <div class="toast-body text-center">\
+                        <h6 class="d-inline-block">'+html.error+'</h6>\
+                    </div>\
+                </div>');
+                $('.toast-container').append(toasterror);
+                var terror = new bootstrap.Toast(toasterror);
+                terror.show();
                 var forms = document.getElementsByClassName('was-validated')[0];
                 forms.className = "needs-validation";
                 $('#username').val('');
@@ -182,16 +210,26 @@ function sendToServer(publicKey,privateKey){
         },
         error: function (html){console.log(html);
             var options = {
-                animation: true
-            };
-            $('#loadingToast .text-muted').html("Just Now");
-            $('#loadingToast .toast-body').html('<button type="button" class="btn-close px-2" aria-label="Close"></button><p class="d-inline-block">Error In Server</p>');
-            
-            var toast = new bootstrap.Toast($('#loadingToast'),options);
-            toast.show();
-            toast.addEventListener('hidden.bs.toast',function(){
-                $('#loadingToast .text-muted').html("<span>0</span> s");
-            });
+                    animation: true,
+                    autohide: false
+                };
+                var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                    <div class="toast-header">\
+                        <strong class="me-auto">Error</strong>\
+                        <small class="text-muted">Just Now</small>\
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                    </div>\
+                    <div class="toast-body text-center">\
+                        <h6 class="d-inline-block">Internal Server Error</h6>\
+                    </div>\
+                </div>');
+                $('.toast-container').append(toasterror);
+                var terror = new bootstrap.Toast(toasterror);
+                terror.show();
+                var forms = document.getElementsByClassName('was-validated')[0];
+                forms.className = "needs-validation";
+                $('#username').val('');
+                $('#pwd').val('');
         }
     });
 }

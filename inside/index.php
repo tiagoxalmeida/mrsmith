@@ -118,7 +118,7 @@ tr:nth-child(even){background-color: #f2f2f2}
     <h1 class="text-center" id="teste">Mr. Smith</h1>
     <h2 class="text-center">Estás conectado a:</h2>
 
-    <button type="button" onclick="window.location.reload();">Atualizar</button>
+    <button type="button" class="btn btn-primary" onclick="window.location.reload();">Atualizar</button>
     <button class="open-button" onclick="openForm()" id="chat">Send</button>
     <button class="open-button-top" onclick="openForm1()" id="con">Conect</button>
     <div class="chat-popup" id="pop">

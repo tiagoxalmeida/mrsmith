@@ -210,26 +210,26 @@ function sendToServer(publicKey,privateKey){
         },
         error: function (html){console.log(html);
             var options = {
-                    animation: true,
-                    autohide: false
-                };
-                var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
-                    <div class="toast-header">\
-                        <strong class="me-auto">Error</strong>\
-                        <small class="text-muted">Just Now</small>\
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
-                    </div>\
-                    <div class="toast-body text-center">\
-                        <h6 class="d-inline-block">Internal Server Error</h6>\
-                    </div>\
-                </div>');
-                $('.toast-container').append(toasterror);
-                var terror = new bootstrap.Toast(toasterror);
-                terror.show();
-                var forms = document.getElementsByClassName('was-validated')[0];
-                forms.className = "needs-validation";
-                $('#username').val('');
-                $('#pwd').val('');
+                animation: true,
+                autohide: false
+            };
+            var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                <div class="toast-header">\
+                    <strong class="me-auto">Error</strong>\
+                    <small class="text-muted">Just Now</small>\
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                </div>\
+                <div class="toast-body text-center">\
+                    <h6 class="d-inline-block">Internal Server Error</h6>\
+                </div>\
+            </div>');
+            $('.toast-container').append(toasterror);
+            var terror = new bootstrap.Toast(toasterror);
+            terror.show();
+            var forms = document.getElementsByClassName('was-validated')[0];
+            forms.className = "needs-validation";
+            $('#username').val('');
+            $('#pwd').val('');
         }
     });
 }

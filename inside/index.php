@@ -291,57 +291,58 @@ button[type='button'] {
     }
 
     function sendToServer(publicKey,privateKey,user, userid,opt,key){
-var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
-var partitionedPublic = [];
-var partitionedPrivate = [];
-var i = 0;
-while (i < publicKey.length){
-    partitionedPublic.push(publicKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPublic = [];
-partitionedPublic.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPublic.push(enc);
+        var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
+        var partitionedPublic = [];
+        var partitionedPrivate = [];
+        var i = 0;
+        while (i < publicKey.length){
+            partitionedPublic.push(publicKey.slice(i,i+181));
+            i=i+181;
+        }
+        var encryptedPublic = [];
+        partitionedPublic.forEach(function(el,i){
+            var enc = RSAencrypt(public_key_server,el);
+            encryptedPublic.push(enc);
+            
+        });
+
+        i=0;
+        while (i < privateKey.length){
+            partitionedPrivate.push(privateKey.slice(i,i+181));
+            i=i+181;
+        }
+        var encryptedPrivate = [];
+        partitionedPrivate.forEach(function(el,i){
+            var enc = RSAencrypt(public_key_server,el);
+            encryptedPrivate.push(enc);
+        });
+
+        var data = {
+            Pk_encrypt: encryptedPublic,
+            pk_encrypt: encryptedPrivate,
+            user: user,
+            userid: userid,
+            opt: opt,
+            key: key,
+        };
+
+        $.ajax({
+            type: "POST",
+            url: 'conex.php',
+            data: data,
+            dataType: "JSON",
+            success: function (html){console.log(html);
+                if(html.success){
+                    window.location.href ="?/connecting/="+userid;
+                }
+                else{
+                    window.location.href ="?/connecting/="+userid;
+                }
+            },
+        
+        });
+    }
     
-});
-
-i=0;
-while (i < privateKey.length){
-    partitionedPrivate.push(privateKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPrivate = [];
-partitionedPrivate.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPrivate.push(enc);
-});
-
-var data = {
-    Pk_encrypt: encryptedPublic,
-    pk_encrypt: encryptedPrivate,
-    user: user,
-    userid: userid,
-    opt: opt,
-    key: key,
-};
-
-$.ajax({
-    type: "POST",
-    url: 'conex.php',
-    data: data,
-    dataType: "JSON",
-    success: function (html){console.log(html);
-        if(html.success){
-            window.location.href ="?/connecting/="+userid;
-        }
-        else{
-            window.location.href ="?/connecting/="+userid;
-        }
-    },
-  
-});
-}
     function connectionEstablished(userid){
         //TODO - ASK THE SERVER FOR CONNECTIONS 
         return true;

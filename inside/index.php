@@ -10,7 +10,14 @@
           }
           
           return json_encode($array);
+<<<<<<< HEAD
       }
+=======
+    }
+
+ 
+    
+>>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
 ?>
 <style>
 .btn svg{

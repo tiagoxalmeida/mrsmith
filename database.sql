@@ -36,8 +36,8 @@ CREATE TABLE connected
 (
   c_last_file VARCHAR(2000) NOT NULL,
   c_encrypted VARCHAR(5) NOT NULL,
-  c_last_file_ext VARCHAR NOT NULL,
-  c_options VARCHAR NOT NULL,
+  c_last_file_ext VARCHAR(5) NOT NULL,
+  c_options VARCHAR(200) NOT NULL,
   c_sender INT NOT NULL,
   c_receiver INT NOT NULL,
   PRIMARY KEY (c_sender, c_receiver),

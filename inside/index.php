@@ -1,18 +1,16 @@
 <?php
     include '../header.php';
     include "../inc/con_inc.php";
-    
+   include "../inc/testSession.php";
     function upd($a){
-        $tes = mysqli_query($a,"SELECT u_name FROM users u, online o where u.u_id = o.u_id");
+        $tes = mysqli_query($a,"SELECT u.u_name, u.u_id FROM users u, online o where u.u_id = o.u_id");
         while($row =$tes->fetch_assoc()){
       
           $array[] = $row;
           }
+          
           return json_encode($array);
       }
-
- 
-    
 ?>
 <style>
 .btn svg{
@@ -36,7 +34,6 @@ button[type='button'] {
 }
 
 </style>
-
 <div class="row min-vh-100 w-100 m-0 position-relative">
     <section class="content col-md-8 col-xl-9 min-vh-100 d-flex position-relative" style="max-height:100vh; overflow: auto">
         <div class="toast-container position-absolute top-0 start-50 translate-middle-x p-3" style="z-index:100000">
@@ -101,6 +98,8 @@ button[type='button'] {
             
             ';
         }else if(isset($_GET['/connecting/'])){
+            $userid =  $_GET['userid'];
+            $user = $_GET['user'];
             echo '
             <section class="col-sm-8 border mx-auto my-5 rounded p-5 d-flex align-items-center justify-content-center text-center"  style="max-height:100%; overflow:auto">
                 <div>
@@ -114,9 +113,11 @@ button[type='button'] {
             ';
         }else if(isset($_GET['/connected/'])){
             $connectionid = $_GET['/connected/'];
+            $userid =  $_GET['userid'];
+            $user = $_GET['user'];
             echo '
             <section class="col-sm-8 border mx-auto my-5 rounded d-flex flex-column align-items-stretch">
-                <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with Bob <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="window.location.href=\'?\';"></button></h4>
+                <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with '+$user+' <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="window.location.href=\'?\';"></button></h4>
                 <div class="d-flex flex-column align-items-stretch justify-content-end h-100 align-self-stretch" style="max-height:100%; overflow:auto" >
                     <div id="files-uploaded align-self-stretch" style="overflow: auto">
                         
@@ -209,32 +210,79 @@ button[type='button'] {
         }
         ?>
         
-    </section>
-    <section class="online col-md-4 col-xl-3 m-0 bg-light min-vh-100" style="max-height:100vh;">
-        <h4 class="text-center py-4 m-0" id ="ass" >People Online</h4>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="basic-addon1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
-            </svg>
-            </span>
-            <input type="text" class="form-control" placeholder="Search People" aria-label="Search People" aria-describedby="basic-addon1" action = "conex.php">
-        </div>
-        <div class="online-content px-1" style="max-height: 80%; overflow-y: auto;" data-mdb-perfect-scrollbar='true' >
-            <button type="button" class="btn btn-info w-100 py-2 my-1" id="1" onclick="inviteUser(this)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
-                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
-                </svg>
-                <h6 class="d-inline-block m-0" >usernameperson</h6> 
-                
-            </button>
-        </div>
-    </section>
+    </section><script>
+      function RSAencrypt(publicKey, text){
+    var crypt = new JSEncrypt();
+    crypt.setPublicKey(publicKey);
+    return crypt.encrypt(text);
+}
+    function sendToServer(publicKey,privateKey,user, userid,opt,key,algo){
+var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
+var partitionedPublic = [];
+var partitionedPrivate = [];
+var i = 0;
+while (i < publicKey.length){
+    partitionedPublic.push(publicKey.slice(i,i+181));
+    i=i+181;
+}
+var encryptedPublic = [];
+partitionedPublic.forEach(function(el,i){
+    var enc = RSAencrypt(public_key_server,el);
+    encryptedPublic.push(enc);
     
-</div>
+});
 
-<script>
+i=0;
+while (i < privateKey.length){
+    partitionedPrivate.push(privateKey.slice(i,i+181));
+    i=i+181;
+}
+var encryptedPrivate = [];
+partitionedPrivate.forEach(function(el,i){
+    var enc = RSAencrypt(public_key_server,el);
+    encryptedPrivate.push(enc);
+});
+
+var data = {
+    Pk_encrypt: encryptedPublic,
+    pk_encrypt: encryptedPrivate,
+    user: user,
+    userid: userid,
+    algo: algo,
+    opt: opt,
+    key: key,
+
+};
+
+$.ajax({
+    type: "POST",
+    url: 'conex.php',
+    data: data,
+    dataType: "JSON",
+    success: function (html){console.log(html);
+        if(html.success){
+            window.location.href ="?/connecting/="+userid;
+        }
+        else{
+            
+        }
+    },error: function (html){console.log(html);}
+  
+});
+}
+    function inviteUser(el){
+        var userid = el.id;
+        var algo = $('[name=algo]:checked').val();
+        var opt = $('[name=opt]:checked').val();
+        var key = $('[name=key]:checked').val();
+        //TODO - CREATE A KEY AND ENCRYPT IT 
+        //TODO - SEND THINGS TO SERVER 
+        //TODO - WAIT FOR THE CONNECTION TO BE ESTABLISHED
+        var pub = localStorage.getItem("Pk_encrypt");
+        var priv =   localStorage.getItem("pk_encrypt");
+        sendToServer(pub,priv,1,userid,opt,key);
+        
+    }
     var options = {
         animation: true
     };
@@ -252,103 +300,29 @@ button[type='button'] {
             $('#key-option').hide();
         }
     });
-    function generateKeys(keySize){
-        var crypt = new JSEncrypt({default_key_size: keySize});
-        var dt = new Date();
-        var time = -(dt.getTime());
-        var load = setInterval(function () {
-        var text = $('#loadingToast .text-muted span').html();
-        $('#loadingToast .text-muted span').html((parseInt(text) + 1));
-    }, 1000);
-    crypt.getKey(function () {
-        clearInterval(load);
-        dt = new Date();
-        time += (dt.getTime());
-        localStorage.setItem('pk_encrypt', crypt.getPrivateKey());
-        localStorage.setItem("Pk_encrypt", crypt.getPublicKey());
-    });
-    return;}
-    function RSAencrypt(publicKey, text){
-    var crypt = new JSEncrypt();
-    crypt.setPublicKey(publicKey);
-    return crypt.encrypt(text);
-}
-
-    function inviteUser(el){
-        
-        var userid = el.id;
-        var algo = $('[name=algo]:checked').val();
-        var opt = $('[name=opt]:checked').val();
-        var key = $('[name=key]:checked').val();
-        var pub = localStorage.getItem("Pk_encrypt");
-        var priv =   localStorage.getItem("pk_encrypt");
-        sendToServer(pub,priv,1,userid,opt,key)//tenho de perguntar cm vou buscar o user id do proprio cliente mas provavelmente deve tar guardado no localstorage
-        //TODO - CREATE A KEY AND ENCRYPT IT feito
-        //TODO - SEND THINGS TO SERVER feitoz\
-        //TODO - WAIT FOR THE CONNECTION TO BE ESTABLISHED
        
-        
-    }
 
-    function sendToServer(publicKey,privateKey,user, userid,opt,key){
-        var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
-        var partitionedPublic = [];
-        var partitionedPrivate = [];
-        var i = 0;
-        while (i < publicKey.length){
-            partitionedPublic.push(publicKey.slice(i,i+181));
-            i=i+181;
-        }
-        var encryptedPublic = [];
-        partitionedPublic.forEach(function(el,i){
-            var enc = RSAencrypt(public_key_server,el);
-            encryptedPublic.push(enc);
-            
-        });
 
-        i=0;
-        while (i < privateKey.length){
-            partitionedPrivate.push(privateKey.slice(i,i+181));
-            i=i+181;
-        }
-        var encryptedPrivate = [];
-        partitionedPrivate.forEach(function(el,i){
-            var enc = RSAencrypt(public_key_server,el);
-            encryptedPrivate.push(enc);
-        });
-
-        var data = {
-            Pk_encrypt: encryptedPublic,
-            pk_encrypt: encryptedPrivate,
-            user: user,
-            userid: userid,
-            opt: opt,
-            key: key,
-        };
-
-        $.ajax({
-            type: "POST",
-            url: 'conex.php',
-            data: data,
-            dataType: "JSON",
-            success: function (html){console.log(html);
-                if(html.success){
-                    window.location.href ="?/connecting/="+userid;
-                }
-                else{
-                    window.location.href ="?/connecting/="+userid;
-                }
-            },
-        
-        });
-    }
     
     function connectionEstablished(userid){
-        //TODO - ASK THE SERVER FOR CONNECTIONS 
+    $.ajax({
+    type: "POST",
+    url: 'criar.php',
+    data: { userid: userid, user:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    dataType: "JSON",
+    success: function (html){console.log(html);
+        if(html.success){
+         var ficheiros = JSON.parse(localStorage.getItem("ficheiros"));//vai buscar ao local storage o array nome dos ficheiros mandados, para inserir localStorage.setItem("ficheiros", JSON.stringify(ficheiros));
+        }
+        else{
+            
+        }
+        
+    },error: function (html){console.log(html);}
+  
+});
         return true;
     }
-
-
     <?php if(isset($_GET['/connecting/']))
         echo '
         var loading = setInterval(() => {
@@ -364,11 +338,79 @@ button[type='button'] {
         toast.show();
     });
 
-    var seeonline = setInterval(() => {
-        var users =<?php echo upd($conn);?>
-        // ASK THE SERVER WHOS ONLINE, FEEDFOWARD THE SERVER AND DISPLAY THE INFO IN THE BOX
+  
+    </script>
+
+
+    <section class="online col-md-4 col-xl-3 m-0 bg-light min-vh-100" style="max-height:100vh;">
+        <h4 class="text-center py-4 m-0">People Online</h4>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+            </svg>
+            </span>
+            <input type="text" class="form-control" placeholder="Search People" aria-label="Search People" aria-describedby="basic-addon1">
+        </div>
+        <div class="online-content px-1" style="max-height: 80%; overflow-y: auto;" data-mdb-perfect-scrollbar='true' >
+            <button type="button" class="btn btn-info w-100 py-2 my-1" id="1" onclick="inviteUser(this);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
+                </svg>
+                <h6 class="d-inline-block m-0">usernameperson1</h6> 
+            </button>
+        </div>
+    </section>
+    
+</div>
+<script>
+  
+function atualiza(){
+    $.ajax({
+    type: "POST",
+    url: 'online.php',
+    data: { getOnline:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    dataType: "JSON",
+    success: function (html){console.log(html);
+        if(html.success){
+            var users = html.table;
+            $(".online-content").html("");
+        for (var i = 0; i < users.length; i++) {
+        var nome = users[i].u_name;
+        var id =  users[i].u_id;
+        var b = $(' <button type="button" class="btn btn-info w-100 py-2 my-1" id="'+id+'" onclick="inviteUser(this)" >\
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">\
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>\
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>\
+            </svg>\
+            <h6 class="d-inline-block m-0" >'+nome+'</h6> \
+            </button>');
+            $(".online-content").append(b);
+        }
+        }
+        else{
+            
+        }
+        var req = html.pedidos;
+    },error: function (html){console.log(html);}
+  
+});
+        
+        
+        
+     
+       
+      
+      
+        
+     }
+     
+     var seeonline = setInterval(() => {
+        atualiza();
     }, 5000);
-</script>
+    atualiza();
+     </script>
 
 <?php
     include '../footer.php';

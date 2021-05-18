@@ -37,88 +37,13 @@
       
     </div>
     <script type="text/javascript">
-      $(function () {
+    </script>
+    <script> // type="text/javascript" is unnecessary in html5
 
-        //Change the key size value for new keys
-        $(".change-key-size").each(function (index, value) {
-          var el = $(value);
-          var keySize = el.attr('data-value');
-          el.click(function (e) {
-            var button = $('#key-size');
-            button.attr('data-value', keySize);
-            button.html(keySize + ' bit <span class="caret"></span>');
-            e.preventDefault();
-          });
-        });
-
-        // Execute when they click the button.
-        $('#execute').click(function () {
-
-          // Create the encryption object.
-          var crypt = new JSEncrypt();
-
-          // Set the private.
-          crypt.setPrivateKey($('#privkey').val());
-          //return;
-          // If no public key is set then set it here...
-          var pubkey = $('#pubkey').val();
-          if (!pubkey) {
-            $('#pubkey').val(crypt.getPublicKey());
-          }
-
-          // Get the input and crypted values.
-          var input = $('#input').val();
-          var crypted = $('#crypted').val();
-
-          // Alternate the values.
-          if (input) {
-            $('#crypted').val(crypt.encrypt(input));
-            $('#input').val('');
-          }
-          else if (crypted) {
-            var decrypted = crypt.decrypt(crypted);
-            if (!decrypted)
-              decrypted = 'This is a test!';
-            $('#input').val(decrypted);
-            $('#crypted').val('');
-          }
-        });
-
-
-        /*var generateKeys = function () {
-          var sKeySize = $('#key-size').attr('data-value');
-          var keySize = parseInt(sKeySize);
-          var crypt = new JSEncrypt({default_key_size: keySize});
-          var async = $('#async-ck').is(':checked');
-          var dt = new Date();
-          var time = -(dt.getTime());
-          if (async) {
-            $('#time-report').text('.');
-            var load = setInterval(function () {
-              var text = $('#time-report').text();
-              $('#time-report').text(text + '.');
-            }, 500);
-            crypt.getKey(function () {
-              clearInterval(load);
-              dt = new Date();
-              time += (dt.getTime());
-              $('#time-report').text('Generated in ' + time + ' ms');
-              $('#privkey').val(crypt.getPrivateKey());
-              $('#pubkey').val(crypt.getPublicKey());
-            });
-            return;
-          }
-          crypt.getKey();
-          dt = new Date();
-          time += (dt.getTime());
-          $('#time-report').text('Generated in ' + time + ' ms');
-          $('#privkey').val(crypt.getPrivateKey());
-          $('#pubkey').val(crypt.getPublicKey());
-        };*/
-
-        // If they wish to generate new keys.
-        //$('#generate').click(function (){sendToServer(localStorage.getItem("Pk"));});
-        //generateKeys(512);
+    // Short version of doing `$(document).ready(function(){`
+    // and safer naming conflicts with $
+    jQuery(function($) { 
+        function HexToWord(word){return CryptoJS.enc.Hex.parse(word);}
         /**
          * Function to encrypt
          * 
@@ -126,7 +51,8 @@
          * @param cleantext Text to encrypt
          * @param keySize size of the key (128,192,256)
          * @param hexKey key in hexadecimal value
-         * @param 
+         * @param modeName name of the module
+         * @param dashiv iv vector 
          */
         function encrypt(algoName="",cleantext,keySize,hexKey,modeName="",dashiv=null){
           var key = HexToWord(hexKey);
@@ -148,23 +74,25 @@
             modeid == 0;
           }
           if(dashiv == null)
-              options = {mode: arrMode[modeid]};
-          else
+              dashiv = HexToWord(CryptoJS.lib.WordArray.random(128 / 8));
               options = {mode: arrMode[modeid],iv: HexToWord(dashiv)};
 
           var key = HexToWord(hexKey);
-
+          console.log(arrFunc[algoid](cleantext,key,options).toString());
           if(algoid <= 2)
             return arrFunc[algoid](cleantext,key,options).toString();
 
           return arrFunc[algoid](cleantext,key).toString();
         }
         /**
-         * Function to encrypt
+         * Function to decrypt
          * 
          * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
-         * @param cleantext Text to encrypt
+         * @param cleantext encrypted text to decrypt
          * @param keySize size of the key (128,192,256)
+         * @param hexKey key in hexadecimal value
+         * @param modeName name of the module
+         * @param dashiv iv vector 
          */
 
         function decrypt(algoName="", cyphertext, keySize, hexKey, modeName="", dashiv=null){
@@ -187,46 +115,42 @@
             modeid == 0;
           }
           if(dashiv == null)
-              options = {mode: arrMode[modeid]};
-          else
+              dashiv = HexToWord(CryptoJS.lib.WordArray.random(128 / 8));
               options = {mode: arrMode[modeid],iv: HexToWord(dashiv)};
-
+          
           var key = HexToWord(hexKey);
           if(algoid <= 2)
-            return arrFunc[algoid](cleantext,key,options).toString(CryptoJS.enc.Utf8);
+            return arrFunc[algoid](cyphertext,key,options).toString(CryptoJS.enc.Utf8);
 
-          return arrFunc[algoid](cleantext,key).toString(CryptoJS.enc.Utf8);
+          return arrFunc[algoid](cyphertext,key).toString(CryptoJS.enc.Utf8);
         }
-
-        function HexToWord(word){return CryptoJS.enc.Hex.parse(word);}
-        var enc = CryptoJS.AES.encrypt("Message", "Ola").toString();
-        console.log(enc);
-        console.log(CryptoJS.AES.decrypt(enc, "Ola").toString(CryptoJS.enc.Utf8));
-      });
-    </script>
-    <script> // type="text/javascript" is unnecessary in html5
-
-    // Short version of doing `$(document).ready(function(){`
-    // and safer naming conflicts with $
-    jQuery(function($) { 
-
         $('#file-input').on('change', function() {
 
             // You can't use the same reader for all the files
             // var reader = new FileReader
+            localStorage.setItem('encrypt',true);
+            
+              $.each(this.files, function(i, file) {
 
-            $.each(this.files, function(i, file) {
-
-                // Uses different reader for all files
-                var reader = new FileReader();
-
-                reader.onload = function() {
-                    // reader.result refer to dataUrl
-                    // theFile is the blob... CryptoJS wants a string...
-                    var encrypted = CryptoJS.AES.encrypt(reader.result, '12334');
-                    var decrypted = CryptoJS.AES.decrypt(encrypted.toString(), '12334');
-                    $("#thelist").html(decrypted.toString(CryptoJS.enc.Utf8));
-                }
+                  // Uses different reader for all files
+                  var reader = new FileReader();
+                  // para criar uma chave -> CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: 128 }).toString()
+                  reader.onload = function() {
+                      //retirar a chave
+                      if(localStorage.getItem('encrypt')){
+                        localStorage.setItem('sessKeySize','128');
+                        localStorage.setItem('sessKey',CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: 128 }).toString());
+                        localStorage.setItem('encMode','ECB');
+                        localStorage.setItem('encAlgo','AES');
+                        var keySize = localStorage.getItem('sessKeySize');
+                        var key = localStorage.getItem('sessKey');
+                        var mode = localStorage.getItem('encMode');
+                        var algo = localStorage.getItem('encAlgo');
+                        var encrypted = encrypt(algo,reader.result,keySize,key,mode);
+                        var decrypted = decrypt(algo,encrypted,keySize,key,mode);
+                        $("#thelist").html(decrypted.toString(CryptoJS.enc.Utf8));
+                      }
+                  }
 
                 reader.readAsDataURL(file);
                 $('#thelist').append('FILES: ' + file.name + '<br>');

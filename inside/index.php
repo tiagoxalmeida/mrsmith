@@ -9,7 +9,7 @@
           $array[] = $row;
           }
           return json_encode($array);
-      }
+    }
 
  
     

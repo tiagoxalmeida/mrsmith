@@ -24,7 +24,7 @@
     echo $decrypted, PHP_EOL;
     $pass = "testkey";
     $config = array(
-    "private_key_bits"=>512
+      "private_key_bits"=>512
     );
     echo '<pre>';
     // Create the keypair

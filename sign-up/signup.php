@@ -13,11 +13,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $salt = md5(random_bytes(256),false);
     $rep = hash("sha256",$pwd.$salt,false);
     $config = array(
+        "config" => "C:/xampp/php/extras/openssl/openssl.cnf",
         "private_key_bits"=> $keysize
     );
     // Create the keypair
+    $privkey = str_replace(array("\n","\r"), '', file_get_contents("../inc/priv.pem"));
+    
+    
     $res=openssl_pkey_new($config);
     openssl_pkey_export($res, $privkey);
+    
     // Get public key
     $pubkey=openssl_pkey_get_details($res);
     $pubkey=$pubkey["key"];

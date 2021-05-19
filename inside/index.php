@@ -256,6 +256,8 @@ var data = {
     algo: algo,
     opt: opt,
     key: key,
+    criar: true,
+    apagar:false,
 
 };
 
@@ -372,14 +374,15 @@ $.ajax({
 <script>
 
 function AcceptInvite(idSender){
-
+    console.log(idSender);
     $.ajax({
     type: "POST",
     url: 'conex.php',
-    data: { apagar:true,criar:false id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    data: { criar:false,apagar:true, user:<?php echo $_SESSION['u_id'] ?>, userid: idSender}, //aqui substuir mais tarde pelo php session
     dataType: "JSON",
-    success: function (html){console.log(html);
-
+    success: function (html){console.log(html);},
+    error: function (html){console.log(html);}
+    });
 }
 
 
@@ -408,7 +411,6 @@ function atualiza(){
         
         var req = html.pedidos;
         var oldReq = JSON.parse(localStorage.getItem("oldReq"));
-        console.log(oldReq);
         
         for (var i = 0;i < req.length;i++){
             var nomeSender = req[i].u_name;
@@ -423,7 +425,7 @@ function atualiza(){
                         User '+ nomeSender+' wants to send you a file.\
                         Do you want to accept?\
                         <div class="mt-2 pt-2">\
-                        <button type="button" class="btn btn-primary onclick="AcceptInvite('+idSender+') btn-sm">Yes</button>\
+                        <button type="button" class="btn btn-primary btn-sm onclick="AcceptInvite('+idSender+')" >Yes</button>\
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
                         </div>\
                     </div>');

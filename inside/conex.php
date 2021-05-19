@@ -6,6 +6,7 @@
         $user = $_POST['user'];//id de quem quer fazer conexao
         $userid = $_POST['userid'];//id de quem vai ser pedido
         
+
         $opt = $_POST['opt'];
         //$public_key = serialize($_POST['Pk_encrypt']);
         //$private_key = serialize($_POST['pk_encrypt']);

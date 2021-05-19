@@ -376,7 +376,7 @@ function AcceptInvite(idSender){
     $.ajax({
     type: "POST",
     url: 'conex.php',
-    data: { apagar:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    data: { apagar:true,criar:false id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
     dataType: "JSON",
     success: function (html){console.log(html);
 

@@ -11,7 +11,7 @@
         $last_file_ext =$_POST['last_file_ext'];
         $encrypted = $_POST['encrypted'];
        
-        if(isset($_POST['verificar'])){
+        if(($_POST['verificar'])){
 
             $query = "SELECT * from connected where ('$user' = c_receiver and '$userid' = c_sender) or ('$userid' = c_receiver and '$user' = c_sender))";//query para inserir as cenas
 
@@ -25,7 +25,7 @@
                 echo json_encode($responseObject);
                 exit;
             }}
-            if(isset($_POST['criar'])){
+            if(($_POST['criar'])){
 
                 $query = "INSERT INTO `connected`(c_last_file, c_encrypted, c_last_file_ext, c_options, c_sender, c_receiver) VALUES ('$last_file','$encrypted','$last_file_ext','$options','$user','$userid')";//query para inserir as cenas
     
@@ -39,7 +39,7 @@
                     echo json_encode($responseObject);
                     exit;
                 }}
-                if(isset($_POST['eliminar'])){
+                if($_POST['eliminar']){
 
                     $query = "DELETE FROM connected where  ('$user' = c_receiver and '$userid' = c_sender) or ('$userid' = c_receiver and '$user' = c_sender)))";
         
@@ -53,7 +53,7 @@
                         echo json_encode($responseObject);
                         exit;
                     }}
-                    if(isset($_POST['update'])){
+                    if($_POST['update']){
 
                         $query = "UPDATE connect set c_last_file = '$last_file', c_last_file_ext = '$last_file_ext' where  ('$user' = c_receiver and '$userid' = c_sender) or ('$userid' = c_receiver and '$user' = c_sender)))";
             

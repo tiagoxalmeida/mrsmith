@@ -7,9 +7,9 @@
         $userid = $_POST['userid'];//id de quem vai ser pedido
         
         $opt = $_POST['opt'];
-        $public_key = serialize($_POST['Pk_encrypt']);
-        $private_key = serialize($_POST['pk_encrypt']);
-        
+        //$public_key = serialize($_POST['Pk_encrypt']);
+        //$private_key = serialize($_POST['pk_encrypt']);
+        if($_POST['criar']){
 
         //if(!empty($user) && !empty($userid) && !empty($public_key) && !empty($private_key)){ //Executar só se os campos estiverem preenchidos
 
@@ -24,7 +24,23 @@
                 $responseObject->success = false;
                 echo json_encode($responseObject);
                 exit;
-            }}//}
+            }}
+            if($_POST['apagar']){
+
+                
+        
+                    if( mysqli_query($conn,"DELETE FROM request_connection where rc_sender ='$userid'")){
+                        $responseObject->success = true;
+                        echo json_encode($responseObject);
+                        exit;
+                    }
+                    else{
+                        $responseObject->success = false;
+                        echo json_encode($responseObject);
+                        exit;
+                    }}
+        }
+
         
            
     include "../inc/close_con.php";

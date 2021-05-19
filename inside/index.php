@@ -363,39 +363,69 @@ button[type='button'] {
     
 </div>
 <script>
-    
-    function atualiza(){
-        $.ajax({
-            type: "POST",
-            url: 'online.php',
-            data: { 
-                getOnline:true,
-                id: <?php echo $_SESSION['u_id'] ?>
-            }, //aqui substuir mais tarde pelo php session
-            dataType: "JSON",
-            success: function (html){console.log(html);
-                if(html.success){
-                    var users = html.table;
-                    $(".online-content").html("");
-                    for (var i = 0; i < users.length; i++) {
-                        var nome = users[i].u_name;
-                        var id =  users[i].u_id;
-                        var b = $(' <button type="button" class="btn btn-info w-100 py-2 my-1" id="'+id+'" onclick="inviteUser(this)" >\
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">\
-                                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>\
-                                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>\
-                                        </svg>\
-                                        <h6 class="d-inline-block m-0" >'+nome+'</h6> \
-                                    </button>');
-                        $(".online-content").append(b);
-                    }
-                    var req = html.pedidos;
-                }
-                else{
-                    
-                }
-                
-            },error: function (html){console.log(html);}
+
+//var emptyArr = [];
+//localStorage.setItem("oldReq",JSON.stringify(emptyArr));
+
+function atualiza(){
+    $.ajax({
+    type: "POST",
+    url: 'online.php',
+    data: { getOnline:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    dataType: "JSON",
+    success: function (html){console.log(html);
+        if(html.success){
+            var users = html.table;
+            $(".online-content").html("");
+        for (var i = 0; i < users.length; i++) {
+        var nome = users[i].u_name;
+        var id =  users[i].u_id;
+        var b = $(' <button type="button" class="btn btn-info w-100 py-2 my-1" id="'+id+'" onclick="inviteUser(this)" >\
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">\
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>\
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>\
+            </svg>\
+            <h6 class="d-inline-block m-0" >'+nome+'</h6> \
+            </button>');
+            $(".online-content").append(b);
+        }
+        
+        var req = html.pedidos;
+        var oldReq = JSON.parse(localStorage.getItem("oldReq"));
+        console.log(oldReq);
+        
+        for (var i = 0;i < req.length;i++){
+            var nomeSender = req[i].u_name;
+            var idSender = req[i].rc_sender;
+            if(!JSON.stringify(oldReq).includes(JSON.stringify(req[i]))){
+                var tst = $('<div class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                    <div class="toast-header">\
+                        <strong class="me-auto">Invite!</strong>\
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                    </div>\
+                    <div class="toast-body">\
+                        User '+ nomeSender+' wants to send you a file.\
+                        Do you want to accept?\
+                        <div class="mt-2 pt-2">\
+                        <button type="button" class="btn btn-primary btn-sm">Yes</button>\
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
+                        </div>\
+                    </div>');
+                    $(".toast-container").append(tst);
+                    var terror = new bootstrap.Toast(tst);
+                    terror.show();
+            }  
+        }
+        localStorage.setItem("oldReq",JSON.stringify(html.pedidos));
+        }
+        else{
+            
+        }
+    },error: function (html){console.log(html);}
+  
+});
+        
+        
         
         });
         

@@ -40,7 +40,7 @@ button[type='button'] {
 <div class="row min-vh-100 w-100 m-0 position-relative">
     <section class="content col-md-8 col-xl-9 min-vh-100 d-flex position-relative" style="max-height:100vh; overflow: auto">
         <div class="toast-container position-absolute top-0 start-50 translate-middle-x p-3" style="z-index:100000">
-            <!-- Then put toasts within -->
+            <!-- Then put toasts within 
             <div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
                     <strong class="me-auto">Warning!</strong>
@@ -53,7 +53,7 @@ button[type='button'] {
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
         <?php if(!isset($_GET['/connecting/']) && !isset($_GET['/connected/'])){
             echo '
@@ -216,85 +216,75 @@ button[type='button'] {
         ?>
         
     </section><script>
-      function RSAencrypt(publicKey, text){
-    var crypt = new JSEncrypt();
-    crypt.setPublicKey(publicKey);
-    return crypt.encrypt(text);
-}
-    function sendToServer(publicKey,privateKey,user, userid,opt,key,algo){
-var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
-var partitionedPublic = [];
-var partitionedPrivate = [];
-var i = 0;
-while (i < publicKey.length){
-    partitionedPublic.push(publicKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPublic = [];
-partitionedPublic.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPublic.push(enc);
-    
-});
-
-i=0;
-while (i < privateKey.length){
-    partitionedPrivate.push(privateKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPrivate = [];
-partitionedPrivate.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPrivate.push(enc);
-});
-
-var data = {
-    Pk_encrypt: encryptedPublic,
-    pk_encrypt: encryptedPrivate,
-    user: user,
-    userid: userid,
-    algo: algo,
-    opt: opt,
-    key: key,
-    criar: true,
-    apagar:false,
-
-};
-
-$.ajax({
-    type: "POST",
-    url: 'conex.php',
-    data: data,
-    dataType: "JSON",
-    success: function (html){console.log(html);
-        if(html.success){
-            window.location.href ="?/connecting/="+userid;
+    function RSAencrypt(publicKey, text){
+        var crypt = new JSEncrypt();
+        crypt.setPublicKey(publicKey);
+        return crypt.encrypt(text);
+    }
+    function sendToServer(sessionKey, receiverid, opt, algo){
+        var partitionedSessionKey = [];
+        var i = 0;
+        while (i < sessionKey.length){
+            partitionedSessionKey.push(sessionKey.slice(i,i+181));
+            i=i+181;
         }
-        else{
+        var encryptedSessionKey = [];
+        partitionedSessionKey.forEach(function(el,i){
+            var enc = RSAencrypt(localStorage.getItem('Pk_encrypt'),el);
+            encryptedSessionKey.push(enc);
             
-        }
-    },error: function (html){console.log(html);}
-  
-});
-}
+        });
+
+        var data = {
+            session_encrypt: encryptedSessionKey,
+            receiver: receiverid,
+            opt: opt,
+            algo: algo
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "conex.php",
+            data: data,
+            dataType: "JSON",
+            success: function (html){console.log(html);
+                if(html.success){
+                    window.location.href ="?/connecting/="+receiverid;
+                }
+                else{
+                    var toasterror = $('<div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                        <div class="toast-header">\
+                            <strong class="me-auto">Error</strong>\
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                        </div>\
+                        <div class="toast-body">\
+                            An error occurred while connecting with the person you choose, please try again later.\
+                        </div>\
+                    </div>');
+                    $('.toast-container').append(toasterror);
+                    var terror = new bootstrap.Toast(toasterror);
+                    terror.show();
+                }
+            },error: function (html){console.log(html);}
+        
+        });
+    }
     function inviteUser(el){
-        var userid = el.id;
+        var receiverid = el.id;
         var algo = $('[name=algo]:checked').val();
         var opt = $('[name=opt]:checked').val();
-        var key = $('[name=key]:checked').val();
-        //TODO - CREATE A KEY AND ENCRYPT IT 
-        //TODO - SEND THINGS TO SERVER 
-        //TODO - WAIT FOR THE CONNECTION TO BE ESTABLISHED
-        var pub = localStorage.getItem("Pk_encrypt");
-        var priv =   localStorage.getItem("pk_encrypt");
-        sendToServer(pub,priv,1,userid,opt,key);
-        
+        var keySize = $('[name=key]:checked').val();
+        //TODO - CREATE A KEY
+        var key = CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: keySize }).toString();
+        localStorage.setItem('sessKey', key);
+        //TODO - SEND THINGS TO SERVER
+        sendToServer(key, receiverid, opt, algo);        
     }
-    var options = {
+    /*var options = {
         animation: true
     };
     var toast = new bootstrap.Toast($('.toast'),options);
-    
+    */
     $('[name=algo]').on('change',function (){
         if($('[name=algo]:checked').val() == "RC4"){
             $('#enc-option').hide();
@@ -307,29 +297,30 @@ $.ajax({
             $('#key-option').hide();
         }
     });
-       
-
-
     
     function connectionEstablished(userid){
-    $.ajax({
-    type: "POST",
-    url: 'criar.php',
-    data: { userid: userid, user:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
-    dataType: "JSON",
-    success: function (html){console.log(html);
-        if(html.success){
-         var ficheiros = JSON.parse(localStorage.getItem("ficheiros"));//vai buscar ao local storage o array nome dos ficheiros mandados, para inserir localStorage.setItem("ficheiros", JSON.stringify(ficheiros));
-        }
-        else{
-            
-        }
+        $.ajax({
+            type: "POST",
+            url: 'criar.php',
+            data: { 
+                testConnection: true,
+                userid: userid
+            }, //aqui substuir mais tarde pelo php session
+            dataType: "JSON",
+            success: function (html){console.log(html);
+                if(html.success){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            },error: function (html){console.log(html);
+                return false;
+            }
         
-    },error: function (html){console.log(html);}
-  
-});
-        return true;
+        });
     }
+
     <?php if(isset($_GET['/connecting/']))
         echo '
         var loading = setInterval(() => {
@@ -360,13 +351,7 @@ $.ajax({
             <input type="text" class="form-control" placeholder="Search People" aria-label="Search People" aria-describedby="basic-addon1">
         </div>
         <div class="online-content px-1" style="max-height: 80%; overflow-y: auto;" data-mdb-perfect-scrollbar='true' >
-            <button type="button" class="btn btn-info w-100 py-2 my-1" id="1" onclick="inviteUser(this);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
-                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
-                </svg>
-                <h6 class="d-inline-block m-0">usernameperson1</h6> 
-            </button>
+            
         </div>
     </section>
     
@@ -376,12 +361,12 @@ $.ajax({
 function AcceptInvite(idSender){
     console.log(idSender);
     $.ajax({
-    type: "POST",
-    url: 'conex.php',
-    data: { criar:false,apagar:true, user:<?php echo $_SESSION['u_id'] ?>, userid: idSender}, //aqui substuir mais tarde pelo php session
-    dataType: "JSON",
-    success: function (html){console.log(html);},
-    error: function (html){console.log(html);}
+        type: "POST",
+        url: 'conex.php',
+        data: { connect: true, userid: idSender}, //aqui substuir mais tarde pelo php session
+        dataType: "JSON",
+        success: function (html){console.log(html);},
+        error: function (html){console.log(html);}
     });
 }
 
@@ -425,7 +410,7 @@ function atualiza(){
                         User '+ nomeSender+' wants to send you a file.\
                         Do you want to accept?\
                         <div class="mt-2 pt-2">\
-                        <button type="button" class="btn btn-primary btn-sm onclick="AcceptInvite('+idSender+')" >Yes</button>\
+                        <button type="button" class="btn btn-primary btn-sm" onclick="AcceptInvite('+idSender+')">Yes</button>\
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
                         </div>\
                     </div>');

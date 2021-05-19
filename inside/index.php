@@ -1,7 +1,7 @@
 <?php
     include '../header.php';
     include "../inc/con_inc.php";
-   include "../inc/testSession.php";
+    //include "../inc/testSession.php";
     function upd($a){
         $tes = mysqli_query($a,"SELECT u.u_name, u.u_id FROM users u, online o where u.u_id = o.u_id");
         while($row =$tes->fetch_assoc()){
@@ -214,72 +214,67 @@ button[type='button'] {
         ?>
         
     </section><script>
-      function RSAencrypt(publicKey, text){
-    var crypt = new JSEncrypt();
-    crypt.setPublicKey(publicKey);
-    return crypt.encrypt(text);
-}
-    function sendToServer(publicKey,privateKey,user, userid,opt,key,algo){
-var public_key_server = "<?php echo str_replace(array("\n","\r"), '', file_get_contents("../inc/pub.pem")); ?>";
-var partitionedPublic = [];
-var partitionedPrivate = [];
-var i = 0;
-while (i < publicKey.length){
-    partitionedPublic.push(publicKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPublic = [];
-partitionedPublic.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPublic.push(enc);
-    
-});
-
-i=0;
-while (i < privateKey.length){
-    partitionedPrivate.push(privateKey.slice(i,i+181));
-    i=i+181;
-}
-var encryptedPrivate = [];
-partitionedPrivate.forEach(function(el,i){
-    var enc = RSAencrypt(public_key_server,el);
-    encryptedPrivate.push(enc);
-});
-
-var data = {
-    Pk_encrypt: encryptedPublic,
-    pk_encrypt: encryptedPrivate,
-    user: user,
-    userid: userid,
-    algo: algo,
-    opt: opt,
-    key: key,
-
-};
-
-$.ajax({
-    type: "POST",
-    url: 'conex.php',
-    data: data,
-    dataType: "JSON",
-    success: function (html){console.log(html);
-        if(html.success){
-            window.location.href ="?/connecting/="+userid;
+    function RSAencrypt(publicKey, text){
+        var crypt = new JSEncrypt();
+        crypt.setPublicKey(publicKey);
+        return crypt.encrypt(text);
+    }
+    function sendToServer(sessionKey, userid, receiverid, opt, algo){
+        var partitionedSessionKey = [];
+        var i = 0;
+        while (i < sessionKey.length){
+            partitionedSessionKey.push(publicKey.slice(i,i+181));
+            i=i+181;
         }
-        else{
+        var encryptedSessionKey = [];
+        partitionedSessionKey.forEach(function(el,i){
+            var enc = RSAencrypt(public_key_server,el);
+            encryptedSessionKey.push(enc);
             
-        }
-    },error: function (html){console.log(html);}
-  
-});
-}
+        });
+
+        var data = {
+            session_encrypt: encryptedSessionKey,
+            user: user,
+            receiver: receiver
+        };
+
+        $.ajax({
+            type: "POST",
+            url: 'conex.php',
+            data: data,
+            dataType: "JSON",
+            success: function (html){console.log(html);
+                if(html.success){
+                    window.location.href ="?/connecting/="+userid;
+                }
+                else{
+                    var toasterror = $('<div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                        <div class="toast-header">\
+                            <strong class="me-auto">Error</strong>\
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                        </div>\
+                        <div class="toast-body">\
+                            An error occurred while connecting with the person you choose, please try again later.\
+                        </div>\
+                    </div>');
+                    $('.toast-container').append(toasterror);
+                    var terror = new bootstrap.Toast(toasterror);
+                    terror.show();
+                }
+            },error: function (html){console.log(html);}
+        
+        });
+    }
+
     function inviteUser(el){
         var userid = el.id;
         var algo = $('[name=algo]:checked').val();
         var opt = $('[name=opt]:checked').val();
         var key = $('[name=key]:checked').val();
-        //TODO - CREATE A KEY AND ENCRYPT IT 
-        //TODO - SEND THINGS TO SERVER 
+        //TODO - CREATE A KEY AND ENCRYPT IT
+
+        //TODO - SEND THINGS TO SERVER
         //TODO - WAIT FOR THE CONNECTION TO BE ESTABLISHED
         var pub = localStorage.getItem("Pk_encrypt");
         var priv =   localStorage.getItem("pk_encrypt");
@@ -368,44 +363,41 @@ $.ajax({
     
 </div>
 <script>
-  
-function atualiza(){
-    $.ajax({
-    type: "POST",
-    url: 'online.php',
-    data: { getOnline:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
-    dataType: "JSON",
-    success: function (html){console.log(html);
-        if(html.success){
-            var users = html.table;
-            $(".online-content").html("");
-        for (var i = 0; i < users.length; i++) {
-        var nome = users[i].u_name;
-        var id =  users[i].u_id;
-        var b = $(' <button type="button" class="btn btn-info w-100 py-2 my-1" id="'+id+'" onclick="inviteUser(this)" >\
-            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">\
-                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>\
-                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>\
-            </svg>\
-            <h6 class="d-inline-block m-0" >'+nome+'</h6> \
-            </button>');
-            $(".online-content").append(b);
-        }
-        }
-        else{
-            
-        }
-        var req = html.pedidos;
-    },error: function (html){console.log(html);}
-  
-});
+    
+    function atualiza(){
+        $.ajax({
+            type: "POST",
+            url: 'online.php',
+            data: { 
+                getOnline:true,
+                id: <?php echo $_SESSION['u_id'] ?>
+            }, //aqui substuir mais tarde pelo php session
+            dataType: "JSON",
+            success: function (html){console.log(html);
+                if(html.success){
+                    var users = html.table;
+                    $(".online-content").html("");
+                    for (var i = 0; i < users.length; i++) {
+                        var nome = users[i].u_name;
+                        var id =  users[i].u_id;
+                        var b = $(' <button type="button" class="btn btn-info w-100 py-2 my-1" id="'+id+'" onclick="inviteUser(this)" >\
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">\
+                                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>\
+                                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>\
+                                        </svg>\
+                                        <h6 class="d-inline-block m-0" >'+nome+'</h6> \
+                                    </button>');
+                        $(".online-content").append(b);
+                    }
+                    var req = html.pedidos;
+                }
+                else{
+                    
+                }
+                
+            },error: function (html){console.log(html);}
         
-        
-        
-     
-       
-      
-      
+        });
         
      }
      

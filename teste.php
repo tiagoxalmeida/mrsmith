@@ -51,12 +51,8 @@
          * @param cleantext Text to encrypt
          * @param keySize size of the key (128,192,256)
          * @param hexKey key in hexadecimal value
-<<<<<<< HEAD
-         * @param 
-=======
          * @param modeName name of the module
          * @param dashiv iv vector 
->>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
          */
         function encrypt(algoName="",cleantext,keySize,hexKey,modeName="",dashiv=null){
           var key = HexToWord(hexKey);
@@ -89,13 +85,6 @@
           return arrFunc[algoid](cleantext,key).toString();
         }
         /**
-<<<<<<< HEAD
-         * Function to encrypt
-         * 
-         * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
-         * @param cleantext Text to encrypt
-         * @param keySize size of the key (128,192,256)
-=======
          * Function to decrypt
          * 
          * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
@@ -104,7 +93,6 @@
          * @param hexKey key in hexadecimal value
          * @param modeName name of the module
          * @param dashiv iv vector 
->>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
          */
 
         function decrypt(algoName="", cyphertext, keySize, hexKey, modeName="", dashiv=null){

@@ -10,14 +10,10 @@
           }
           
           return json_encode($array);
-<<<<<<< HEAD
-      }
-=======
     }
 
  
     
->>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
 ?>
 <style>
 .btn svg{
@@ -395,11 +391,36 @@ function atualiza(){
             </button>');
             $(".online-content").append(b);
         }
+        var req = html.pedidos;
+        var oldReq = localStorage.getItem("oldReq");
+        console.log(oldReq);
+        for (var i = 0; req.length;i++){
+            var nomeSender = req[i].u_name;
+            var idSender = req[i].rc_sender;
+            if(!oldReq.includes(req[i])){
+                var tst = $('<div class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                    <div class="toast-header">\
+                        <strong class="me-auto">Invite!</strong>\
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                    </div>\
+                    <div class="toast-body">\
+                        User '+ nomeSender+'wants to send you a file.\
+                        Do you want to accept?\
+                        <div class="mt-2 pt-2">\
+                        <button type="button" class="btn btn-primary btn-sm">Yes</button>\
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
+                        </div>\
+                    </div>');
+                    $(".toast-container").append(tst);
+                    var terror = new bootstrap.Toast(tst);
+                    terror.show();
+            }
+        }
+        localStorage.setItem("oldReq",html.pedidos);
         }
         else{
             
         }
-        var req = html.pedidos;
     },error: function (html){console.log(html);}
   
 });

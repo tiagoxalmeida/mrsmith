@@ -13,11 +13,7 @@
        
         if(isset($_POST['verificar'])){
 
-<<<<<<< HEAD
-            $query = "SELECT * from connected where ('$user' = c_receiver and '$userid' = c_sender) or '$userid' = c_receiver and '$user' = c_sender)";//query para inserir as cenas
-=======
             $query = "SELECT * from connected where ('$user' = c_receiver and '$userid' = c_sender) or ('$userid' = c_receiver and '$user' = c_sender))";//query para inserir as cenas
->>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
 
             if( mysqli_query($conn,$query)){
                 $responseObject->success = true;
@@ -43,8 +39,6 @@
                     echo json_encode($responseObject);
                     exit;
                 }}
-<<<<<<< HEAD
-=======
                 if(isset($_POST['eliminar'])){
 
                     $query = "DELETE FROM connected where  ('$user' = c_receiver and '$userid' = c_sender) or ('$userid' = c_receiver and '$user' = c_sender)))";
@@ -75,7 +69,6 @@
                         }}
 
 
->>>>>>> b5ca7977f9b3e052310c6491f11d24d510216b43
         }
         
            

@@ -1,6 +1,6 @@
 CREATE TABLE users
 (
-  u_id INT NOT NULL,
+  u_id INT NOT NULL AUTO_INCREMENT,
   u_name VARCHAR(30) NOT NULL,
   u_email VARCHAR(100) NOT NULL,
   u_salt CHAR(32) NOT NULL,

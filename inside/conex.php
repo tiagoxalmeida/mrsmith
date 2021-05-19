@@ -30,16 +30,19 @@
 
                 
         
-                    if( mysqli_query($conn,"DELETE FROM request_connection where rc_sender ='$userid'")){
+                    $tes =mysqli_query($conn,"DELETE FROM request_connection where rc_sender ='$userid'");
+                    if(mysqli_num_rows($tes)>0){
                         $responseObject->success = true;
                         echo json_encode($responseObject);
                         exit;
+                    }
+                        
                     }
                     else{
                         $responseObject->success = false;
                         echo json_encode($responseObject);
                         exit;
-                    }}
+                    }
         }
 
         

@@ -101,8 +101,6 @@ button[type='button'] {
             
             ';
         }else if(isset($_GET['/connecting/'])){
-            $userid =  $_GET['userid'];
-            $user = $_GET['user'];
             echo '
             <section class="col-sm-8 border mx-auto my-5 rounded p-5 d-flex align-items-center justify-content-center text-center"  style="max-height:100%; overflow:auto">
                 <div>
@@ -116,11 +114,15 @@ button[type='button'] {
             ';
         }else if(isset($_GET['/connected/'])){
             $connectionid = $_GET['/connected/'];
-            $userid =  $_GET['userid'];
-            $user = $_GET['user'];
+            $queryUserName = "SELECT u_name FROM users WHERE u_id = '$connectionid'";
+            $result = mysqli_query($conn,$queryUserName);
+
+            $row = mysqli_fetch_assoc($result);
+            $username = $row["u_name"];
+            //$user = $_GET['user'];
             echo '
             <section class="col-sm-8 border mx-auto my-5 rounded d-flex flex-column align-items-stretch">
-                <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with '+$user+' <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="window.location.href=\'?\';"></button></h4>
+                <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with '.$username.' <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="window.location.href=\'?\';"></button></h4>
                 <div class="d-flex flex-column align-items-stretch justify-content-end h-100 align-self-stretch" style="max-height:100%; overflow:auto" >
                     <div id="files-uploaded align-self-stretch" style="overflow: auto">
                         
@@ -369,8 +371,17 @@ $.ajax({
 </div>
 <script>
 
-//var emptyArr = [];
-//localStorage.setItem("oldReq",JSON.stringify(emptyArr));
+function AcceptInvite(idSender){
+
+    $.ajax({
+    type: "POST",
+    url: 'conex.php',
+    data: { apagar:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
+    dataType: "JSON",
+    success: function (html){console.log(html);
+
+}
+
 
 function atualiza(){
     $.ajax({
@@ -412,7 +423,7 @@ function atualiza(){
                         User '+ nomeSender+' wants to send you a file.\
                         Do you want to accept?\
                         <div class="mt-2 pt-2">\
-                        <button type="button" class="btn btn-primary btn-sm">Yes</button>\
+                        <button type="button" class="btn btn-primary onclick="AcceptInvite('+idSender+') btn-sm">Yes</button>\
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
                         </div>\
                     </div>');
@@ -428,14 +439,7 @@ function atualiza(){
         }
     },error: function (html){console.log(html);}
   
-});
-        
-        
-        
-     
-       
-      
-      
+});  
         
      }
      

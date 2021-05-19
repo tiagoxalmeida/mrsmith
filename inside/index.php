@@ -368,7 +368,10 @@ $.ajax({
     
 </div>
 <script>
-  
+
+//var emptyArr = [];
+//localStorage.setItem("oldReq",JSON.stringify(emptyArr));
+
 function atualiza(){
     $.ajax({
     type: "POST",
@@ -391,20 +394,22 @@ function atualiza(){
             </button>');
             $(".online-content").append(b);
         }
+        
         var req = html.pedidos;
-        var oldReq = localStorage.getItem("oldReq");
+        var oldReq = JSON.parse(localStorage.getItem("oldReq"));
         console.log(oldReq);
-        for (var i = 0; req.length;i++){
+        
+        for (var i = 0;i < req.length;i++){
             var nomeSender = req[i].u_name;
             var idSender = req[i].rc_sender;
-            if(!oldReq.includes(req[i])){
+            if(!JSON.stringify(oldReq).includes(JSON.stringify(req[i]))){
                 var tst = $('<div class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">\
                     <div class="toast-header">\
                         <strong class="me-auto">Invite!</strong>\
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
                     </div>\
                     <div class="toast-body">\
-                        User '+ nomeSender+'wants to send you a file.\
+                        User '+ nomeSender+' wants to send you a file.\
                         Do you want to accept?\
                         <div class="mt-2 pt-2">\
                         <button type="button" class="btn btn-primary btn-sm">Yes</button>\
@@ -414,9 +419,9 @@ function atualiza(){
                     $(".toast-container").append(tst);
                     var terror = new bootstrap.Toast(tst);
                     terror.show();
-            }
+            }  
         }
-        localStorage.setItem("oldReq",html.pedidos);
+        localStorage.setItem("oldReq",JSON.stringify(html.pedidos));
         }
         else{
             

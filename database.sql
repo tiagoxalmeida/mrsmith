@@ -1,3 +1,14 @@
+SET GLOBAL event_scheduler = ON;
+DELIMITER $$
+CREATE EVENT IF NOT EXISTS users_online_reset 
+ON SHCEDULE EVERY 5 SECOND STARTS '2012-07-10 00:00:00' DO
+BEGIN
+DELETE FROM online WHERE o_feedfoward = 0;
+UPDATE online SET o_feedfoward = 0 WHERE o_feedfoward = 1;
+END
+$$;
+
+
 CREATE TABLE users
 (
   u_id INT NOT NULL AUTO_INCREMENT,
@@ -19,7 +30,7 @@ CREATE TABLE online
   o_feedfoward BIT NOT NULL,
   u_id INT NOT NULL,
   PRIMARY KEY (u_id),
-  FOREIGN KEY (u_id) REFERENCES users(u_id)
+  FOREIGN KEY (u_id) REFERENCES users(u_id) ON DELETE CASCADE 
 );
 
 CREATE TABLE request_connection
@@ -28,8 +39,8 @@ CREATE TABLE request_connection
   rc_sender INT NOT NULL,
   rc_receiver INT NOT NULL,
   PRIMARY KEY (rc_sender, rc_receiver),
-  FOREIGN KEY (rc_sender) REFERENCES online(u_id),
-  FOREIGN KEY (rc_receiver) REFERENCES online(u_id)
+  FOREIGN KEY (rc_sender) REFERENCES online(u_id) ON DELETE CASCADE,
+  FOREIGN KEY (rc_receiver) REFERENCES online(u_id) ON DELETE CASCADE  
 );
 
 CREATE TABLE connected
@@ -41,6 +52,6 @@ CREATE TABLE connected
   c_sender INT NOT NULL,
   c_receiver INT NOT NULL,
   PRIMARY KEY (c_sender, c_receiver),
-  FOREIGN KEY (c_sender) REFERENCES online(u_id),
-  FOREIGN KEY (c_receiver) REFERENCES online(u_id)
+  FOREIGN KEY (c_sender) REFERENCES online(u_id) ON DELETE CASCADE  ,
+  FOREIGN KEY (c_receiver) REFERENCES online(u_id) ON DELETE CASCADE  
 );

@@ -35,7 +35,7 @@
                 
                 if($row != null){ //Se o array for diferente de null o elemento existe e sucesso
                     $id = $row['u_id'];
-                    $query_online = "INSERT INTO online (u_id) VALUES ('$id')";
+                    $query_online = "INSERT INTO online (u_id,o_feedfoward) VALUES ('$id',1)";
                     if($result_online = mysqli_query($conn,$query_online)){
                         
                         $query_keys = "UPDATE users SET u_public_encrypt_key='$public_key' ,u_private_encrypt_key='$private_key' WHERE u_id='$id';";

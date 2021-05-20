@@ -13,15 +13,6 @@ function upd($a, $id){
 }
 
 function feedfoward($a, $id){
-    
-     if(mysqli_query($a,"SELECT u.u_name, u.u_id FROM users u, online o where u.u_id = o.u_id and u.u_id != '$id'")){
-         return true;
-    }
-    return false;
-   
-}
-
-function requests($a, $id){
     $tes = mysqli_query($a,"UPDATE online SET o_feedfoward=1  WHERE u_id = '$id'");
     if(!$tes){
         return false;

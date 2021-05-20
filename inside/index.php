@@ -1,7 +1,7 @@
 <?php
+    include "../inc/testSession.php";
     include '../header.php';
     include "../inc/con_inc.php";
-   include "../inc/testSession.php";
     function upd($a){
         $tes = mysqli_query($a,"SELECT u.u_name, u.u_id FROM users u, online o where u.u_id = o.u_id");
         while($row =$tes->fetch_assoc()){
@@ -40,7 +40,7 @@ button[type='button'] {
 <div class="row min-vh-100 w-100 m-0 position-relative">
     <section class="content col-md-8 col-xl-9 min-vh-100 d-flex position-relative" style="max-height:100vh; overflow: auto">
         <div class="toast-container position-absolute top-0 start-50 translate-middle-x p-3" style="z-index:100000">
-            <!-- Then put toasts within 
+            <!-- Then put toasts within -->
             <div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
                     <strong class="me-auto">Warning!</strong>
@@ -53,7 +53,7 @@ button[type='button'] {
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>
                     </div>
                 </div>
-            </div>-->
+            </div>
         </div>
         <?php if(!isset($_GET['/connecting/']) && !isset($_GET['/connected/'])){
             echo '
@@ -274,17 +274,20 @@ button[type='button'] {
         var algo = $('[name=algo]:checked').val();
         var opt = $('[name=opt]:checked').val();
         var keySize = $('[name=key]:checked').val();
-        //TODO - CREATE A KEY
+        //CREATE A KEY
         var key = CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: keySize }).toString();
+        //SAVE OPTIONS
         localStorage.setItem('sessKey', key);
-        //TODO - SEND THINGS TO SERVER
+        localStorage.setItem('sessAlgo', algo);
+        localStorage.setItem('sessOpt',opt);
+        //SEND THINGS TO SERVER
         sendToServer(key, receiverid, opt, algo);        
     }
-    /*var options = {
+    var options = {
         animation: true
     };
     var toast = new bootstrap.Toast($('.toast'),options);
-    */
+    
     $('[name=algo]').on('change',function (){
         if($('[name=algo]:checked').val() == "RC4"){
             $('#enc-option').hide();
@@ -297,37 +300,25 @@ button[type='button'] {
             $('#key-option').hide();
         }
     });
-    
-    function connectionEstablished(userid){
-        $.ajax({
-            type: "POST",
-            url: 'criar.php',
-            data: { 
-                testConnection: true,
-                userid: userid
-            }, //aqui substuir mais tarde pelo php session
-            dataType: "JSON",
-            success: function (html){console.log(html);
-                if(html.success){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-            },error: function (html){console.log(html);
-                return false;
-            }
-        
-        });
-    }
 
     <?php if(isset($_GET['/connecting/']))
         echo '
         var loading = setInterval(() => {
-            if(connectionEstablished('.$_GET['/connecting/'].')){
-                clearInterval(loading);
-                window.location.href ="?/connected/='.$_GET['/connecting/'].'"; 
-            }
+            $.ajax({
+                type: "POST",
+                url: \'conex.php\',
+                data: { 
+                    testConnection: true,
+                    userid: '.$_GET['/connecting/'].'
+                },
+                dataType: "JSON",
+                success: function (html){console.log(html);
+                    if(html.success){
+                        clearInterval(loading);
+                        window.location.href ="?/connected/='.$_GET['/connecting/'].'"; 
+                    }
+                },error: function (html){console.log(html);}
+            });
         //
         }, 5000);
         ';

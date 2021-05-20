@@ -204,6 +204,31 @@
             mysqli_commit($conn);
             include "../inc/close_con.php";
             exit;
+        }else if(isset($_POST['disconnect'])){
+            include "../inc/con_inc.php";   
+            session_start();
+
+            $user = $_SESSION['u_id'];
+            $userid = $_POST['userid'];
+            $query = "DELETE FROM connected WHERE (c_receiver = '$userid' AND c_sender= '$user') OR (c_receiver = '$user' AND c_sender= '$userid')";
+
+            if(!$result = mysqli_query($conn,$query)){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(mysqli_num_rows($result)<=0){
+                $responseObject->success = false;
+                $responseObject->error = "Results Not Found";
+                echo json_encode($responseObject);
+                exit;
+            }
+            $responseObject->success = true;
+            echo json_encode($responseObject);
+
+            include "../inc/close_con.php";
+            exit;/**/
         }else{
             $responseObject->success = false;
             $responseObject->error = "Fields not filled";

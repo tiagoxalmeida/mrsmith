@@ -102,8 +102,22 @@ echo '
 
 <script>
     function onExit(){
-        window.location.href = '\?';
-        //retirar a conexão
+
+        $.ajax({
+            type: "POST",
+            url: 'conex.php',
+            data: { disconnect:true, userid: <?php echo $connectionid ?>},
+            dataType: "JSON",
+            success: function (html){
+                console.log(html);
+                if(!html.success){
+                    window.location.href = '\?'; //redirecionar para a pagina index
+                }
+            },
+            error: function (html){
+                console.log(html);
+            }
+        });
     }
 
     function conexao(){
@@ -116,7 +130,6 @@ echo '
             success: function (html){
                 console.log(html);
                 if(!html.success){
-                    console.log("sair");
                     window.location.href = '\?'; //redirecionar para a pagina index
                 }
             },

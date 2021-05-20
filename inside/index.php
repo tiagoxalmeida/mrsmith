@@ -183,10 +183,10 @@ button[type='button'] {
         var key = CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: keySize }).toString();
         //SAVE OPTIONS
         if(algo == "" || opt == "" ){
-            sendToServer(localStorage.getItem())
+            sendToServer(key,receiverid, localStorage.getItem('sessOpt'), localStorage.getItem('sessAlgo'))
         }
         localStorage.setItem('sessKey', key);
-        localStorage.setItem('sessKeySize')
+        localStorage.setItem('sessKeySize', keySize);
         localStorage.setItem('sessAlgo', algo);
         localStorage.setItem('sessOpt',opt);
         //SEND THINGS TO SERVER

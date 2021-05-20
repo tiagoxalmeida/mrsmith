@@ -8,7 +8,7 @@ $username = $row["u_name"];
 //$user = $_GET['user'];
 echo '
 <section class="col-sm-8 border mx-auto my-5 rounded d-flex flex-column align-items-stretch">
-    <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with '.$username.' <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="window.location.href=\'?\';"></button></h4>
+    <h4 class="text-left text-success w-100 bg-primary text-white p-3 mb-3 align-self-start position-relative">Session started with '.$username.' <button type="button" class="btn-close position-absolute end-0 top-0 p-3" aria-label="Close" onclick="onExit()"></button></h4>
     <div class="d-flex flex-column align-items-stretch justify-content-end h-100 align-self-stretch" style="max-height:100%; overflow:auto" >
         <div id="files-uploaded align-self-stretch" style="overflow: auto">
             
@@ -98,3 +98,39 @@ echo '
     </div>
 </section>
 ';
+?>
+
+<script>
+    function onExit(){
+        window.location.href = '\?';
+        //retirar a conexão
+    }
+
+    function conexao(){
+        $.ajax({
+            type: "POST",
+            url: 'conex.php',
+            data: { testConnection:true, userid:<?php echo $_SESSION['u_id'] ?>, user: <?php echo $connectionid ?>},
+            dataType: "JSON",
+            success: function (html){
+                console.log(html);
+                if(!html.success){
+                    console.log("sair");
+                    window.location.href = '\?'; //redirecionar para a pagina index
+                }
+            },
+            error: function (html){
+                console.log(html);
+            }
+        });
+    }
+
+    setInterval(() => {
+        conexao();
+    }, 5000);
+    
+
+
+</script>
+
+<?php

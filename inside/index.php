@@ -143,7 +143,7 @@ button[type='button'] {
             opt: opt,
             algo: algo
         };
-
+        console.log(data);
         $.ajax({
             type: "POST",
             url: "conex.php",
@@ -177,9 +177,16 @@ button[type='button'] {
         var opt = $('[name=opt]:checked').val();
         var keySize = $('[name=key]:checked').val();
         //CREATE A KEY
+        if(keySize == ""){
+            keySize = localStorage.getItem('sessKeySize');
+        }
         var key = CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: keySize }).toString();
         //SAVE OPTIONS
+        if(algo == "" || opt == "" ){
+            sendToServer(localStorage.getItem())
+        }
         localStorage.setItem('sessKey', key);
+        localStorage.setItem('sessKeySize')
         localStorage.setItem('sessAlgo', algo);
         localStorage.setItem('sessOpt',opt);
         //SEND THINGS TO SERVER
@@ -250,7 +257,11 @@ button[type='button'] {
     
 </div>
 <script>
-
+function RSAdecrypt(privateKey, text){
+    var crypt = new JSEncrypt();
+    crypt.setPrivateKey(privateKey);
+    return crypt.decrypt(text);
+}
 function AcceptInvite(idSender){
     console.log(idSender);
     $.ajax({
@@ -259,7 +270,15 @@ function AcceptInvite(idSender){
         data: { connect: true, userid: idSender},
         dataType: "JSON",
         success: function (html){console.log(html);
-        
+            if(html.success){
+                var key = "";
+                for(i=0; i< html.key.length;i++)
+                    key += RSAdecrypt(localStorage.getItem('pk_encrypt'), html.key[i]);
+                localStorage.setItem('sessKey',key);
+                localStorage.setItem('sessAlgo', html.options[0]);
+                localStorage.setItem('sessOpt',html.options[1]);
+                window.location.href ="?/connected/="+idSender; 
+            }
         },
         error: function (html){console.log(html);}
     });

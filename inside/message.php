@@ -107,10 +107,11 @@ echo '
     }
 
     function conexao(){
+        console.log(<?php echo $_SESSION['u_id'] ?>);
         $.ajax({
             type: "POST",
             url: 'conex.php',
-            data: { testConnection:true, userid:<?php echo $_SESSION['u_id'] ?>, user: <?php echo $connectionid ?>},
+            data: { testConnection:true, userid: <?php echo $connectionid ?>},
             dataType: "JSON",
             success: function (html){
                 console.log(html);

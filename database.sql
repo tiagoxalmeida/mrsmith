@@ -1,7 +1,7 @@
 SET GLOBAL event_scheduler = ON;
 DELIMITER $$
 CREATE EVENT IF NOT EXISTS users_online_reset 
-ON SHCEDULE EVERY 5 SECOND STARTS '2012-07-10 00:00:00' DO
+ON SCHEDULE EVERY 5 SECOND DO
 BEGIN
 DELETE FROM online WHERE o_feedfoward = 0;
 UPDATE online SET o_feedfoward = 0 WHERE o_feedfoward = 1;

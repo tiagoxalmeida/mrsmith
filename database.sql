@@ -1,4 +1,7 @@
+CREATE DATABASE mrsmith;
+
 SET GLOBAL event_scheduler = ON;
+
 DELIMITER $$
 CREATE EVENT IF NOT EXISTS users_online_reset 
 ON SCHEDULE EVERY 5 SECOND DO

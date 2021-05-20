@@ -13,7 +13,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $salt = md5(random_bytes(256),false);
     $rep = hash("sha256",$pwd.$salt,false);
     $config = array(
-        /*"config" => "C:/xampp/php/extras/openssl/openssl.cnf",*/
+        "config" => "C:/xampp/php/extras/openssl/openssl.cnf",
         "private_key_bits"=> $keysize
     );
     // Create the keypair

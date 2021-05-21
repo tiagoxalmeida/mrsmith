@@ -102,7 +102,6 @@ echo '
 
 <script>
     function onExit(){
-
         $.ajax({
             type: "POST",
             url: 'conex.php',

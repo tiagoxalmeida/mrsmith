@@ -13,6 +13,7 @@ function upd($a, $id){
 }
 
 function feedfoward($a, $id){
+    //TODO - make people online if not online
     $tes = mysqli_query($a,"UPDATE online SET o_feedfoward=1  WHERE u_id = '$id'");
     if(!$tes){
         return false;

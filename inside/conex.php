@@ -86,7 +86,7 @@
             $options[0] = $response_array[0];
             $options[1] = $response_array[1];
 
-            $query2 = "DELETE FROM request_connection WHERE rc_receiver = '$receiverid' AND rc_sender= '$receiverid'";
+            $query2 = "DELETE FROM request_connection WHERE rc_receiver = '$receiverid' AND rc_sender= '$senderid'";
             if(!mysqli_query($conn,$query2)){
                 $responseObject->success = false;
                 $responseObject->error = "Query 2 Error";
@@ -212,15 +212,9 @@
             $userid = $_POST['userid'];
             $query = "DELETE FROM connected WHERE (c_receiver = '$userid' AND c_sender= '$user') OR (c_receiver = '$user' AND c_sender= '$userid')";
 
-            if(!$result = mysqli_query($conn,$query)){
+            if(!($result = mysqli_query($conn,$query))){
                 $responseObject->success = false;
                 $responseObject-> error = "Server Error";
-                echo json_encode($responseObject);
-                exit;
-            }
-            if(mysqli_num_rows($result)<=0){
-                $responseObject->success = false;
-                $responseObject->error = "Results Not Found";
                 echo json_encode($responseObject);
                 exit;
             }
@@ -228,7 +222,7 @@
             echo json_encode($responseObject);
 
             include "../inc/close_con.php";
-            exit;/**/
+            exit;
         }else{
             $responseObject->success = false;
             $responseObject->error = "Fields not filled";

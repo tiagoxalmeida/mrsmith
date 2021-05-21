@@ -97,7 +97,7 @@ button[type='button'] {
                         </div>
                     </div>
                     <p class="mt-4">If you connect to a friend through invitation, the encryption algo and options are choosed by him.</p>
-                    <button type="button" class="btn btn-primary btn-sm onclick="Logout()">Logout</button>
+                    <button type="button" class="btn btn-primary" onclick="Logout()">Logout</button>
                 </div>
             </section>
             
@@ -164,7 +164,6 @@ button[type='button'] {
             opt: opt,
             algo: algo
         };
-        console.log(data);
         $.ajax({
             type: "POST",
             url: "conex.php",
@@ -284,7 +283,6 @@ function RSAdecrypt(privateKey, text){
     return crypt.decrypt(text);
 }
 function AcceptInvite(idSender){
-    console.log(idSender);
     $.ajax({
         type: "POST",
         url: 'conex.php',

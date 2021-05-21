@@ -50,8 +50,7 @@ CREATE TABLE connected
 (
   c_last_file VARCHAR(2000) NOT NULL DEFAULT "",
   c_encrypted VARCHAR(5) NOT NULL DEFAULT "",
-  c_last_file_ext VARCHAR(5) NOT NULL DEFAULT "",
-  c_options VARCHAR(200) NOT NULL DEFAULT "",
+  c_last_file_ext VARCHAR(2000) NOT NULL DEFAULT "",
   c_sender INT NOT NULL,
   c_receiver INT NOT NULL,
   PRIMARY KEY (c_sender, c_receiver),

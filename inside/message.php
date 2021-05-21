@@ -108,7 +108,6 @@ echo '
             data: { disconnect:true, userid: <?php echo $connectionid ?>},
             dataType: "JSON",
             success: function (html){
-                console.log(html);
                 if(!html.success){
                     window.location.href = '\?'; //redirecionar para a pagina index
                 }
@@ -127,13 +126,11 @@ echo '
             data: { testConnection:true, userid: <?php echo $connectionid ?>},
             dataType: "JSON",
             success: function (html){
-                console.log(html);
                 if(!html.success){
                     window.location.href = '\?'; //redirecionar para a pagina index
                 }
             },
             error: function (html){
-                console.log(html);
             }
         });
     }
@@ -141,23 +138,102 @@ echo '
     setInterval(() => {
         conexao();
     }, 5000);
-    
+    /**
+        * Function to decrypt
+        * 
+        * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
+        * @param cleantext encrypted text to decrypt
+        * @param hexKey key in hexadecimal value
+        * @param modeName name of the module
+        * @param dashiv iv vector 
+        */
+
+    function decrypt(algoName="", cyphertext, hexKey, modeName="", dashiv=null){
+        var key = HexToWord(hexKey);
+        var arrFuncName=["AES","3DES","DES","RC4"];
+        var arrFunc=[CryptoJS.AES.decrypt,CryptoJS.TripleDES.decrypt,CryptoJS.DES.decrypt,CryptoJS.RC4.decrypt];
+        var algoid = arrFuncName.indexOf(algoName);
+        if(algoid == -1){
+        console.log("Algo Not Found\n---Decrypting with AES algo---");
+        algoid = 0;
+        }
+        var arrModeName = ["CBC","ECB"];
+        var arrMode = [CryptoJS.mode.CBC, CryptoJS.mode.ECB];
+        var options;
+        var modeid = arrModeName.indexOf(modeName);
+        if(modeid == -1){
+            if(algoid <= 2)
+                console.log("Mode Not Found\n---Decrypting with CBC mode---");
+            
+            modeid == 0;
+        }
+        if(dashiv == null)
+            dashiv = HexToWord(CryptoJS.lib.WordArray.random(128 / 8));
+            options = {mode: arrMode[modeid],iv: HexToWord(dashiv)};
+        
+        var key = HexToWord(hexKey);
+        if(algoid <= 2)
+        return arrFunc[algoid](cyphertext,key,options).toString(CryptoJS.enc.Utf8);
+
+        return arrFunc[algoid](cyphertext,key).toString(CryptoJS.enc.Utf8);
+    }
+
+    /**
+        * Function to decrypt
+        * 
+        * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
+        * @param cleantext encrypted text to decrypt
+        * @param hexKey key in hexadecimal value
+        * @param modeName name of the module
+        * @param dashiv iv vector 
+        **/
+
+    function decrypt(algoName="", cyphertext, hexKey, modeName="", dashiv=null){
+        var key = HexToWord(hexKey);
+        var arrFuncName=["AES","3DES","DES","RC4"];
+        var arrFunc=[CryptoJS.AES.decrypt,CryptoJS.TripleDES.decrypt,CryptoJS.DES.decrypt,CryptoJS.RC4.decrypt];
+        var algoid = arrFuncName.indexOf(algoName);
+        if(algoid == -1){
+            console.log("Algo Not Found\n---Decrypting with AES algo---");
+            algoid = 0;
+        }
+        var arrModeName = ["CBC","ECB"];
+        var arrMode = [CryptoJS.mode.CBC, CryptoJS.mode.ECB];
+        var options;
+        var modeid = arrModeName.indexOf(modeName);
+        if(modeid == -1){
+            if(algoid <= 2)
+                console.log("Mode Not Found\n---Decrypting with CBC mode---");
+            
+            modeid == 0;
+        }
+        if(dashiv == null)
+            dashiv = HexToWord(CryptoJS.lib.WordArray.random(128 / 8));
+        options = {mode: arrMode[modeid],iv: HexToWord(dashiv)};
+        
+        var key = HexToWord(hexKey);
+        if(algoid <= 2)
+            return arrFunc[algoid](cyphertext,key,options).toString(CryptoJS.enc.Utf8);
+
+        return arrFunc[algoid](cyphertext,key).toString(CryptoJS.enc.Utf8);
+    }
     var forceSend = false;
     $('#sendfile').on('click',function(){
         $.ajax({
             type: "POST",
             url: 'conex.php',
-            data: { isEmpty: true},
+            data: { verifySender: true},
             dataType: "JSON",
             success: function (html){
                 console.log(html);
                 if(html.success || forceSend){
                     var encrypted;
                     // Uses different reader for all files
+                    var file = $('#fileChoosed').prop('files')[0];
+                    var enc = $('[name=btnradioenc]').val();
                     var reader = new FileReader();
-                    // para criar uma chave -> CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: 128 }).toString()
                     reader.onload = function() {
-                        switch($('[name=btnradioenc]').val()){
+                        switch(enc){
                             case 0: //normal
 
                             break;
@@ -174,17 +250,16 @@ echo '
                             break;
                         }
                         //retirar a chave
-                        
-                        
-                        
                     }
-                    reader.readAsDataURL($('#fileChoosed').prop('files')[0]);
+                    reader.readAsDataURL(file);
                     $.ajax({
                         type: "POST",
                         url: 'conex.php',
-                        data: { 
-                            forceSend: forceSend,
-                            c_last_file: 
+                        data: {
+                            sendFile: true,
+                            c_last_file: file.name,
+                            c_encrypted: enc,
+                            file: encrypted
                         },
                         dataType: "JSON",
                         success: function (html){

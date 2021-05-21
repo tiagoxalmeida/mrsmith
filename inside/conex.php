@@ -1,4 +1,7 @@
 <?php
+    ini_set('display_startup_errors', 1);
+    ini_set('display_errors', 1);
+    error_reporting(-1);
     $responseObject = new stdClass();
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_POST['receiver']) && isset($_POST['opt']) && isset($_POST['session_encrypt']) && isset($_POST['algo'])){
@@ -230,9 +233,20 @@
             $user = $_SESSION['u_id'];
             $c_last_file = $_POST['c_last_file'];
             $c_encrypted = $_POST['c_encrypted'];
-            $c_last_file_ext = $_POST['c_last_file_ext'];
-            $query = "UPDATE connected SET c_last_file = '$c_last_file', c_encrypted = '$c_encrypted', c_last_file_ext = '$c_last_file_ext' WHERE c_sender = '$user'";
-            
+            $file = $_POST['file'];
+
+            $uniq = uniqid('file_',false).".enc";
+
+            $enc_file = fopen("uploads/".$uniq, "w");
+            if(!$enc_file){
+                $responseObject->success = false;
+                echo json_encode($responseObject);
+                exit;
+            }
+            fwrite($enc_file,'$file');
+            fclose($enc_file);
+
+            $query = "UPDATE connected SET c_last_file = '$c_last_file', c_encrypted = '$c_encrypted', c_last_file_ext = '$uniq' WHERE c_sender = '$user'";
             if( mysqli_query($conn,$query)){
                 $responseObject->success = true;
                 echo json_encode($responseObject);
@@ -243,14 +257,11 @@
                 echo json_encode($responseObject);
                 exit;
             }
-
-            include "../inc/close_con.php";
-            exit;
-        }else if(isset($_POST['verifyReceived']){
+        }else if(isset($_POST['verifySender'])){
             include "../inc/con_inc.php";   
             session_start();
             $user = $_SESSION['u_id'];
-            $query = "SELECT c_last_file,c_encrypted,c_lats_file_ext FROM connected WHERE c_receiver = '$user'";
+            $query = "SELECT c_last_file,c_encrypted,c_last_file_ext FROM connected WHERE c_sender = '$user'";
 
             if(!$result = mysqli_query($conn,$query)){
                 $responseObject->success = false;
@@ -265,8 +276,8 @@
                 exit;
             }
             $row = mysqli_fetch_assoc($result);
-            if($row['c_last_file'] == "" && $row['c_encrypted'] == "" && $row['$c_last_file_ext'] == ""){
-                $responseObject->success = true
+            if($row['c_last_file'] == "" && $row['c_encrypted'] == "" && $row['c_last_file_ext'] == ""){
+                $responseObject->success = true;
                 echo json_encode($responseObject);
                 exit;
             }
@@ -276,7 +287,37 @@
 
             include "../inc/close_con.php";
             exit;
-        }else if(isset($_POST['receiveFile']){
+        }else if(isset($_POST['verifyReceived'])){
+            include "../inc/con_inc.php";   
+            session_start();
+            $user = $_SESSION['u_id'];
+            $query = "SELECT c_last_file,c_encrypted,c_last_file_ext FROM connected WHERE c_receiver = '$user'";
+
+            if(!$result = mysqli_query($conn,$query)){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(mysqli_num_rows($result)<=0){
+                $responseObject->success = false;
+                $responseObject->error = "Results Not Found";
+                echo json_encode($responseObject);
+                exit;
+            }
+            $row = mysqli_fetch_assoc($result);
+            if($row['c_last_file'] == "" && $row['c_encrypted'] == "" && $row['c_last_file_ext'] == ""){
+                $responseObject->success = false;
+                echo json_encode($responseObject);
+                exit;
+            }
+
+            $responseObject->success = true;
+            echo json_encode($responseObject);
+
+            include "../inc/close_con.php";
+            exit;
+        }else if(isset($_POST['receiveFile'])){
             include "../inc/con_inc.php";   
             session_start();
 
@@ -302,12 +343,6 @@
                 echo json_encode($responseObject);
                 exit;
             }
-            if(mysqli_num_rows($result2)<=0){
-                $responseObject->success = false;
-                $responseObject->error = "Results Not Found";
-                echo json_encode($responseObject);
-                exit;
-            }
 
             $row = mysqli_fetch_assoc($result1);
 
@@ -319,7 +354,7 @@
 
             include "../inc/close_con.php";
             exit;
-        }else{
+        }/**/else{
             $responseObject->success = false;
             $responseObject->error = "Fields not filled";
             echo json_encode($responseObject);

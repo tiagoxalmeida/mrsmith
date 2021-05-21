@@ -49,12 +49,11 @@
          * 
          * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
          * @param cleantext Text to encrypt
-         * @param keySize size of the key (128,192,256)
          * @param hexKey key in hexadecimal value
          * @param modeName name of the module
          * @param dashiv iv vector 
          */
-        function encrypt(algoName="",cleantext,keySize,hexKey,modeName="",dashiv=null){
+        function encrypt(algoName="",cleantext,hexKey,modeName="",dashiv=null){
           var key = HexToWord(hexKey);
           var arrFuncName=["AES","3DES","DES","RC4"];
           var arrFunc=[CryptoJS.AES.encrypt,CryptoJS.TripleDES.encrypt,CryptoJS.DES.encrypt,CryptoJS.RC4.encrypt];
@@ -89,13 +88,12 @@
          * 
          * @param algoName Name of the algorithm (AES,3DES,DES,RABBIT,RC4,RC4DROP)
          * @param cleantext encrypted text to decrypt
-         * @param keySize size of the key (128,192,256)
          * @param hexKey key in hexadecimal value
          * @param modeName name of the module
          * @param dashiv iv vector 
          */
 
-        function decrypt(algoName="", cyphertext, keySize, hexKey, modeName="", dashiv=null){
+        function decrypt(algoName="", cyphertext, hexKey, modeName="", dashiv=null){
           var key = HexToWord(hexKey);
           var arrFuncName=["AES","3DES","DES","RC4"];
           var arrFunc=[CryptoJS.AES.decrypt,CryptoJS.TripleDES.decrypt,CryptoJS.DES.decrypt,CryptoJS.RC4.decrypt];

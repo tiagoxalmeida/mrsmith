@@ -273,7 +273,7 @@ function AcceptInvite(idSender){
         url: 'conex.php',
         data: { connect: true, userid: idSender},
         dataType: "JSON",
-        success: function (html){console.log(html);
+        success: function (html){
             if(html.success){
                 var key = "";
                 for(i=0; i< html.key.length;i++)
@@ -295,10 +295,10 @@ function atualiza(){
     url: 'online.php',
     data: { getOnline:true, id:<?php echo $_SESSION['u_id'] ?>}, //aqui substuir mais tarde pelo php session
     dataType: "JSON",
-    success: function (html){console.log(html);
+    success: function (html){
         if(html.success){
             var users = html.table;
-            $(".online-content").html("");
+        $(".online-content").html("");
         for (var i = 0; i < users.length; i++) {
         var nome = users[i].u_name;
         var id =  users[i].u_id;
@@ -342,7 +342,7 @@ function atualiza(){
         else{
             
         }
-    },error: function (html){console.log(html);}
+    },error: function (html){}
   
 });  
         

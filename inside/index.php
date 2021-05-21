@@ -117,7 +117,7 @@ button[type='button'] {
             dataType: "JSON",
             success: function (html){console.log(html);
                 if(html.success){
-                    console.log("aceitar");
+                    <?php session_destroy() ?>
                     window.location.href ="/";
                 }
               

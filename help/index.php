@@ -1,22 +1,23 @@
 <?php
+    include 'header.php';?>
 
-?>
 <!DOCTYPE html>
-<html>
+
+<div class="jumbotron d-flex align-items-center min-vh-100">
+    <div class="container-sm text-center p-4 mt-4 border border-dark rounded-2 w-75">
 <head>
 	<title>Help</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-	<?php include("header.php");?>
+	
 
 <br>
-<div class="titulo">
-	<h1> Help </h1>
-</div>
 
 
 
+
+<h1>Help</h1>
 
 <h2>Funcionamento geral</h2>
 
@@ -98,5 +99,10 @@
 
 	
 	<br>	
+	<a href="/" class="btn btn-primary">HomePage</a>
+	<a href="perguntasfrequentes.php" class="btn btn-primary">Seguinte</a>
 </body>
-</html>
+</div>
+</div>
+<?php
+  include '../footer.php';?>

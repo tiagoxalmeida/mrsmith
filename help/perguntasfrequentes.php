@@ -1,18 +1,19 @@
-<?php
 
-?>
-
+<?php include("header.php"); ?>
 <!DOCTYPE html>
-<html>
+
+<div class="jumbotron d-flex align-items-center min-vh-100">
+    <div class="container-sm text-center p-4 mt-4 border border-dark rounded-2 w-75">
 <head>
 	<title>Perguntas Frequentes</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
+	
+	<h1> Perguntas Frequentes </h1>
+
 </head>
 <body>
-	<<?php include("header.php"); ?>
-	<div class="titulo">
-	<h1> Perguntas Frequentes </h1>
-</div>
+	
+
 
 
 
@@ -29,7 +30,7 @@ Se a página fica a atualizar costantemente e não consegue aceder á sua conta,
 
 <p>
 Cada um dos algoritmos criptográficos possui vantagens e desvantagens e todos eles podem ser submetidos a ataques por terceiros. Selecionamos o algoritmo criptográfico com base nas demandas do aplicativo que será utilizado. Se a confidencialidade e a integridade forem fatores importantes, o algoritmo AES pode ser selecionado. Se a demanda da aplicação for a largura de banda da rede, o DES é a melhor opção.
-Contudo existem muitos outros fatores que influenciam na escolha de uma cifra,para uma comparação mais detahada entre cifras <a href="https://symbiosisonlinepublishing.com/computer-science-technology/computerscience-information-technology32.php">click aqui</a></p>
+Contudo existem muitos outros fatores que influenciam na escolha de uma cifra,para uma comparação mais detalhada entre cifras <a href="https://symbiosisonlinepublishing.com/computer-science-technology/computerscience-information-technology32.php" target="_blank">click aqui</a></p>
 
 <h2>Qual o modo de cifra que devo utilizar?</h2>
 
@@ -39,6 +40,9 @@ Contudo existem muitos outros fatores que influenciam na escolha de uma cifra,pa
 	Como isto recomenda-se o modo de cifra CBC em relacão ao ECB,uma vez que este aumenta a segurança.
 
 </p>
+<a href="/" class="btn btn-primary">HomePage</a>
+	<a href="/help" class="btn btn-primary">Anterior</a>
+</div></div>
 
 </body>
-</html>
+<?php include '../footer.php';?>

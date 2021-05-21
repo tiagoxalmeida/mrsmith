@@ -40,20 +40,7 @@ button[type='button'] {
 <div class="row min-vh-100 w-100 m-0 position-relative">
     <section class="content col-md-8 col-xl-9 min-vh-100 d-flex position-relative" style="max-height:100vh; overflow: auto">
         <div class="toast-container position-absolute top-0 start-50 translate-middle-x p-3" style="z-index:100000">
-            <!-- Then put toasts within -->
-            <div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto">Warning!</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    The message you sended isn't received, you will overwrite the message if you send this one. Do you want to continue?
-                    <div class="mt-2 pt-2">
-                    <button type="button" class="btn btn-primary btn-sm">Continue</button>
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>
-                    </div>
-                </div>
-            </div>
+                       
         </div>
         <?php if(!isset($_GET['/connecting/']) && !isset($_GET['/connected/'])){
             echo '
@@ -212,11 +199,12 @@ button[type='button'] {
         //SEND THINGS TO SERVER
         sendToServer(key, receiverid, opt, algo);        
     }
+    /*
     var options = {
         animation: true
     };
     var toast = new bootstrap.Toast($('.toast'),options);
-    
+    */
     $('[name=algo]').on('change',function (){
         if($('[name=algo]:checked').val() == "RC4"){
             $('#enc-option').hide();
@@ -252,9 +240,6 @@ button[type='button'] {
         }, 5000);
         ';
     ?>
-    $('#sendfile').on('click',function(){
-        toast.show();
-    });
 
   
     </script>

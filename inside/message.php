@@ -81,14 +81,14 @@ echo '
             
         </div>
         <div class="align-self-end w-100 p-3 text-right align-items-end">
-            <input type="file" placeholder="Chose a file to send" aria-label="Chose a file to send" class="form-control">
+            <input type="file" placeholder="Chose a file to send" aria-label="Chose a file to send" class="form-control" id="fileChoosed">
             <div class="mt-3 position-relative">
                 <div class="btn-group" role="group" aria-label="Chose what you want to do with your file">
-                    <input type="radio" class="btn-check" name="btnradio" id="normal" value="0" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="btnradioenc" value="0" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="normal">Normal</label>
-                    <input type="radio" class="btn-check" name="btnradio" id="encrypt" value="1" autocomplete="off">
+                    <input type="radio" class="btn-check" name="btnradioenc" value="1" autocomplete="off">
                     <label class="btn btn-outline-primary" for="encrypt">Encrypt</label>
-                    <input type="radio" class="btn-check" name="btnradio" id="sign" value="2" autocomplete="off">
+                    <input type="radio" class="btn-check" name="btnradioenc" value="2" autocomplete="off">
                     <label class="btn btn-outline-primary" for="sign">Sign</label>
                 </div>
                 <button class="btn btn-primary position-absolute end-0 right-0" type="submit" id="sendfile">Send</button>
@@ -142,7 +142,105 @@ echo '
         conexao();
     }, 5000);
     
+    var forceSend = false;
+    $('#sendfile').on('click',function(){
+        $.ajax({
+            type: "POST",
+            url: 'conex.php',
+            data: { isEmpty: true},
+            dataType: "JSON",
+            success: function (html){
+                console.log(html);
+                if(html.success || forceSend){
+                    var encrypted;
+                    // Uses different reader for all files
+                    var reader = new FileReader();
+                    // para criar uma chave -> CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: 128 }).toString()
+                    reader.onload = function() {
+                        switch($('[name=btnradioenc]').val()){
+                            case 0: //normal
 
+                            break;
+                            case 1: //encrypt
+                                var key = localStorage.getItem('sessKey');
+                                var mode = localStorage.getItem('encMode');
+                                var algo = localStorage.getItem('encAlgo');
+                                var encrypted = encrypt(algo,reader.result,key,mode);
+                                var decrypted = decrypt(algo,encrypted,key,mode);
+                                console.log(decrypted.toString(CryptoJS.enc.Utf8));
+                            break;
+                            case 2: //sign
+
+                            break;
+                        }
+                        //retirar a chave
+                        
+                        
+                        
+                    }
+                    reader.readAsDataURL($('#fileChoosed').prop('files')[0]);
+                    $.ajax({
+                        type: "POST",
+                        url: 'conex.php',
+                        data: { 
+                            forceSend: forceSend,
+                            c_last_file: 
+                        },
+                        dataType: "JSON",
+                        success: function (html){
+                            console.log(html);
+                            if(html.success || forceSend){
+                                
+                                forceSend = false;
+                            }else{
+                                
+                            }
+                        },
+                        error: function (html){
+                            
+                        }
+                    });
+                    forceSend = false;
+                }else{
+                    var toasterror = $('<div class="toast bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                                            <div class="toast-header">\
+                                                <strong class="me-auto">Warning!</strong>\
+                                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                                            </div>\
+                                            <div class="toast-body">\
+                                                The message you sended isn\'t received, you will overwrite the message if you send this one. Do you want to continue?\
+                                                <div class="mt-2 pt-2">\
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="forceSend=true;$(\'#sendfile\').click();">Continue</button>\
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
+                                                </div>\
+                                            </div>\
+                                        </div>');
+                    $('.toast-container').append(toasterror);
+                    var terror = new bootstrap.Toast(toasterror);
+                    terror.show();
+                }
+            },
+            error: function (html){
+                console.log(html);
+                var toasterror = $('<div class="toast bg-error border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                                        <div class="toast-header">\
+                                            <strong class="me-auto">Error!</strong>\
+                                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                                        </div>\
+                                        <div class="toast-body">\
+                                            The message could not be sended - internal server error.\
+                                            <div class="mt-2 pt-2">\
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="forceSend=true;$(\'#sendfile\').click();">Continue</button>\
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
+                                            </div>\
+                                        </div>\
+                                    </div>');
+                    $('.toast-container').append(toasterror);
+                    var terror = new bootstrap.Toast(toasterror);
+                    terror.show();
+            }
+        });
+    });
 
 </script>
 

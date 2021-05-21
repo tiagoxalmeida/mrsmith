@@ -223,6 +223,102 @@
 
             include "../inc/close_con.php";
             exit;
+        }else if(isset($_POST['sendFile'])){
+            include "../inc/con_inc.php";   
+            session_start();
+
+            $user = $_SESSION['u_id'];
+            $c_last_file = $_POST['c_last_file'];
+            $c_encrypted = $_POST['c_encrypted'];
+            $c_last_file_ext = $_POST['c_last_file_ext'];
+            $query = "UPDATE connected SET c_last_file = '$c_last_file', c_encrypted = '$c_encrypted', c_last_file_ext = '$c_last_file_ext' WHERE c_sender = '$user'";
+            
+            if( mysqli_query($conn,$query)){
+                $responseObject->success = true;
+                echo json_encode($responseObject);
+                exit;
+            }
+            else{
+                $responseObject->success = false;
+                echo json_encode($responseObject);
+                exit;
+            }
+
+            include "../inc/close_con.php";
+            exit;
+        }else if(isset($_POST['verifyReceived']){
+            include "../inc/con_inc.php";   
+            session_start();
+            $user = $_SESSION['u_id'];
+            $query = "SELECT c_last_file,c_encrypted,c_lats_file_ext FROM connected WHERE c_receiver = '$user'";
+
+            if(!$result = mysqli_query($conn,$query)){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(mysqli_num_rows($result)<=0){
+                $responseObject->success = false;
+                $responseObject->error = "Results Not Found";
+                echo json_encode($responseObject);
+                exit;
+            }
+            $row = mysqli_fetch_assoc($result);
+            if($row['c_last_file'] == "" && $row['c_encrypted'] == "" && $row['$c_last_file_ext'] == ""){
+                $responseObject->success = true
+                echo json_encode($responseObject);
+                exit;
+            }
+
+            $responseObject->success = false;
+            echo json_encode($responseObject);
+
+            include "../inc/close_con.php";
+            exit;
+        }else if(isset($_POST['receiveFile']){
+            include "../inc/con_inc.php";   
+            session_start();
+
+            $user = $_SESSION['u_id'];
+            $query1 = "SELECT c_last_file,c_encrypted,c_lats_file_ext FROM connected WHERE c_receiver = '$user'";
+            if(!$result1 = mysqli_query($conn,$query1)){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(mysqli_num_rows($result1)<=0){
+                $responseObject->success = false;
+                $responseObject->error = "Results Not Found";
+                echo json_encode($responseObject);
+                exit;
+            }
+
+            $query2 = "UPDATE connected SET c_last_file = '', c_encrypted = '', c_last_file_ext = '' WHERE c_receiver = '$user'";
+            if(!$result2 = mysqli_query($conn,$query2)){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(mysqli_num_rows($result2)<=0){
+                $responseObject->success = false;
+                $responseObject->error = "Results Not Found";
+                echo json_encode($responseObject);
+                exit;
+            }
+
+            $row = mysqli_fetch_assoc($result1);
+
+            $responseObject->success = true;
+            $responseObject->c_last_file = $row['c_last_file'];
+            $responseObject->c_encrypted = $row['c_encrypted'];
+            $responseObject->c_last_file_ext = $row['c_last_file_ext'];
+            echo json_encode($responseObject);
+
+            include "../inc/close_con.php";
+            exit;
         }else{
             $responseObject->success = false;
             $responseObject->error = "Fields not filled";

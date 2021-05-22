@@ -39,13 +39,10 @@
 <h2>Cifras disponíveis </h2>
 
 
-<h4>Rivest-Shamir-Adleman (RSA)</h4>
+<h4>Rivest Cipher 4 (RC4)</h4>
 
 <p>
-	Rivest-Shamir-Adleman (RSA) foi uma das pioneiras em relação à criptografia de chave pública, o nome é composto pelos sobrenomes de seus criadores.
-	Esse é considerado um dos algoritmos mais seguros do mercado, por essa razão também foi o primeiro a possibilitar a criptografia na assinatura digital.
-
-    O RSA funciona da seguinte forma: são criadas duas chaves diferentes, uma pública e outra privada (que deve ser mantida em sigilo). Todas as mensagens podem ser cifradas pela pública, mas somente decifradas pela privada.
+	RC4 significa Rivest Cipher 4. RC4 é uma cifra de chave simétrica e foi inventada por Ron Rivest em 1987. Como RC4 é uma cifra de chave simétrica, esta cifra o fluxo de dados byte a byte. De todas as cifras de chave simétrica, RC4 é uma cifra amplamente usada devido à sua velocidade de operações e simplicidade.
 
 </p>
 

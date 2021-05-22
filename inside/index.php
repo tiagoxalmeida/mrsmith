@@ -109,11 +109,11 @@ button[type='button'] {
         $.ajax({
             type: "POST",
             url: "online.php",
-            data: {id:<?php echo $_SESSION['u_id'] ?>,apagar:true},
+            data: {apagar:true},
             dataType: "JSON",
             success: function (html){console.log(html);
                 if(html.success){
-                    <?php session_destroy() ?>
+                    
                     window.location.href ="/";
                 }
               

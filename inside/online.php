@@ -58,13 +58,15 @@ if(isset($_POST['getOnline'])){
 }
 
 else if(isset($_POST['apagar'])){
-    $id = $_POST['id'];
+    session_start();
+    $id = $_SESSION['u_id'];
     $tes = mysqli_query($conn,"DELETE from online where u_id = '$id'");
     if($tes){
         $responseObject->success = true;
         echo json_encode($responseObject);
         exit;
     }
+    session_unset(); 
     $responseObject->success = false;
     echo json_encode($responseObject);
     exit;

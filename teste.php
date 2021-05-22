@@ -77,7 +77,6 @@
               options = {mode: arrMode[modeid],iv: HexToWord(dashiv)};
 
           var key = HexToWord(hexKey);
-          console.log(arrFunc[algoid](cleantext,key,options).toString());
           if(algoid <= 2)
             return arrFunc[algoid](cleantext,key,options).toString();
 
@@ -138,14 +137,14 @@
                       if(localStorage.getItem('encrypt')){
                         localStorage.setItem('sessKeySize','128');
                         localStorage.setItem('sessKey',CryptoJS.SHA3(CryptoJS.lib.WordArray.random(128 / 8), { outputLength: 128 }).toString());
-                        localStorage.setItem('encMode','ECB');
+                        localStorage.setItem('encMode','CBC');
                         localStorage.setItem('encAlgo','AES');
                         var keySize = localStorage.getItem('sessKeySize');
                         var key = localStorage.getItem('sessKey');
                         var mode = localStorage.getItem('encMode');
                         var algo = localStorage.getItem('encAlgo');
-                        var encrypted = encrypt(algo,reader.result,keySize,key,mode);
-                        var decrypted = decrypt(algo,encrypted,keySize,key,mode);
+                        var encrypted = encrypt(algo,reader.result,key,mode);
+                        var decrypted = decrypt(algo,encrypted,key,mode);
                         $("#thelist").html(decrypted.toString(CryptoJS.enc.Utf8));
                       }
                   }

@@ -41,7 +41,7 @@
             session_start();
             $user = $_SESSION['u_id'];
             $userid = $_POST['userid'];
-            $query = "SELECT c_receiver FROM connected WHERE c_receiver = '$userid' AND c_sender= '$user'";
+            $query = "SELECT c_last_file,c_encrypted,c_last_file_ext FROM connected WHERE c_receiver = '$user' AND c_sender= '$userid'";
             if(!$result = mysqli_query($conn,$query)){
                 $responseObject->success = false;
                 $responseObject-> error = "Server Error";
@@ -53,6 +53,24 @@
                 $responseObject->error = "Results Not Found";
                 echo json_encode($responseObject);
                 exit;
+            }
+            $row = mysqli_fetch_assoc($result);
+            $filename = $row['c_last_file'];
+            $filedir = $_SERVER['DOCUMENT_ROOT']."/uploads/".$row['c_last_file_ext'];
+            $encrypted = $row['c_encrypted'];
+            if($encrypted == 1){ // se o ficheiro está encriptado
+                $file = fopen($filedir, "r");
+                $textencrypted = fread($file, filesize($filedir));
+                fclose($file);
+                
+                $responseObject->fileName = $filename;
+                $responseObject->fileContents = $textencrypted;
+                $responseObject->fileEncrypted = $encrypted;
+
+            }else if($encrypted == 2){
+
+            }else if($encrypted == 3){
+
             }
             $responseObject->success = true;
             echo json_encode($responseObject);
@@ -182,7 +200,6 @@
               $sk_sender .= $decrypted;
             }
             $key = [];
-            
             foreach($key_encrypted_array as $part){
                 $decrypted = null;
                 if(!openssl_private_decrypt(base64_decode($part), $decrypted, $sk_sender)){
@@ -198,7 +215,7 @@
                     echo json_encode($responseObject);
                     exit;
                 }
-                $key[] = bin2hex($crypted);
+                $key[] = base64_encode($crypted);
             }
             $responseObject->success = true;
             $responseObject->options = $options;
@@ -226,7 +243,7 @@
 
             include "../inc/close_con.php";
             exit;
-        }else if(isset($_POST['sendFile'])){
+        }else if(isset($_POST['sendFileEnc'])){
             include "../inc/con_inc.php";   
             session_start();
 
@@ -236,16 +253,10 @@
             $file = $_POST['file'];
 
             $uniq = uniqid('file_',false).".enc";
-
-            $enc_file = fopen("uploads/".$uniq, "w");
-            if(!$enc_file){
-                $responseObject->success = false;
-                echo json_encode($responseObject);
-                exit;
-            }
-            fwrite($enc_file,'$file');
-            fclose($enc_file);
-
+            //opendir("uploads/");
+            $myfile = fopen($_SERVER['DOCUMENT_ROOT']."/uploads/".$uniq, "w") or die("Unable to open file!");
+            fwrite($myfile, $file);
+            fclose($myfile);
             $query = "UPDATE connected SET c_last_file = '$c_last_file', c_encrypted = '$c_encrypted', c_last_file_ext = '$uniq' WHERE c_sender = '$user'";
             if( mysqli_query($conn,$query)){
                 $responseObject->success = true;
@@ -287,74 +298,63 @@
 
             include "../inc/close_con.php";
             exit;
-        }else if(isset($_POST['verifyReceived'])){
+        }else if(isset($_POST['decline'])){
             include "../inc/con_inc.php";   
             session_start();
-            $user = $_SESSION['u_id'];
-            $query = "SELECT c_last_file,c_encrypted,c_last_file_ext FROM connected WHERE c_receiver = '$user'";
 
-            if(!$result = mysqli_query($conn,$query)){
+            $user = $_SESSION['u_id'];
+            $userid = $_POST['userid'];
+            $query = "DELETE FROM request_connection WHERE rc_sender= '$userid' AND rc_receiver='$user'";
+
+            if(!($result = mysqli_query($conn,$query))){
                 $responseObject->success = false;
                 $responseObject-> error = "Server Error";
                 echo json_encode($responseObject);
                 exit;
             }
-            if(mysqli_num_rows($result)<=0){
-                $responseObject->success = false;
-                $responseObject->error = "Results Not Found";
-                echo json_encode($responseObject);
-                exit;
-            }
-            $row = mysqli_fetch_assoc($result);
-            if($row['c_last_file'] == "" && $row['c_encrypted'] == "" && $row['c_last_file_ext'] == ""){
-                $responseObject->success = false;
-                echo json_encode($responseObject);
-                exit;
-            }
-
             $responseObject->success = true;
             echo json_encode($responseObject);
 
             include "../inc/close_con.php";
             exit;
-        }else if(isset($_POST['receiveFile'])){
+        }else if(isset($_POST['delete'])){
             include "../inc/con_inc.php";   
             session_start();
 
             $user = $_SESSION['u_id'];
-            $query1 = "SELECT c_last_file,c_encrypted,c_lats_file_ext FROM connected WHERE c_receiver = '$user'";
-            if(!$result1 = mysqli_query($conn,$query1)){
+            $userid = $_POST['userid'];
+            $query = "DELETE FROM request_connection WHERE rc_sender= '$user' AND rc_receiver='$userid'";
+
+            if(!($result = mysqli_query($conn,$query))){
                 $responseObject->success = false;
                 $responseObject-> error = "Server Error";
                 echo json_encode($responseObject);
                 exit;
             }
-            if(mysqli_num_rows($result1)<=0){
-                $responseObject->success = false;
-                $responseObject->error = "Results Not Found";
-                echo json_encode($responseObject);
-                exit;
-            }
-
-            $query2 = "UPDATE connected SET c_last_file = '', c_encrypted = '', c_last_file_ext = '' WHERE c_receiver = '$user'";
-            if(!$result2 = mysqli_query($conn,$query2)){
-                $responseObject->success = false;
-                $responseObject-> error = "Server Error";
-                echo json_encode($responseObject);
-                exit;
-            }
-
-            $row = mysqli_fetch_assoc($result1);
-
             $responseObject->success = true;
-            $responseObject->c_last_file = $row['c_last_file'];
-            $responseObject->c_encrypted = $row['c_encrypted'];
-            $responseObject->c_last_file_ext = $row['c_last_file_ext'];
             echo json_encode($responseObject);
 
             include "../inc/close_con.php";
             exit;
-        }/**/else{
+        }else if(isset($_POST['received'])){
+            include "../inc/con_inc.php";   
+            session_start();
+
+            $user = $_SESSION['u_id'];
+            $query = "UPDATE connected SET c_last_file='', c_encrypted='', c_last_file_ext='' WHERE c_receiver= '$user'";
+
+            if(!($result = mysqli_query($conn,$query))){
+                $responseObject->success = false;
+                $responseObject-> error = "Server Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            $responseObject->success = true;
+            echo json_encode($responseObject);
+
+            include "../inc/close_con.php";
+            exit;
+        }else{
             $responseObject->success = false;
             $responseObject->error = "Fields not filled";
             echo json_encode($responseObject);

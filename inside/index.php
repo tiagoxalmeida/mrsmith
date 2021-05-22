@@ -10,10 +10,7 @@
           }
           
           return json_encode($array);
-    }
-
- 
-    
+    } 
 ?>
 <style>
 .btn svg{
@@ -46,7 +43,6 @@ button[type='button'] {
             echo '
             <section class="col-sm-8 border mx-auto my-5 rounded p-5 d-flex align-items-center justify-content-center text-center"  style="max-height:100%; overflow:auto">
                 <div>
-                    
                     <h4 class="text-center text-success">You are online</h4>
                     <p class="text-center">Chose a friend to encrypt and send files or just simply send signed files. You can also wait for a friend invitation to comunicate with you.</p>
                     <p class="text-center">Before you connect chose one of the algos and keys available to encrypt your messages.</p>
@@ -156,7 +152,7 @@ button[type='button'] {
             url: "conex.php",
             data: data,
             dataType: "JSON",
-            success: function (html){console.log(html);
+            success: function (html){
                 if(html.success){
                     window.location.href ="?/connecting/="+receiverid;
                 }
@@ -174,7 +170,7 @@ button[type='button'] {
                     var terror = new bootstrap.Toast(toasterror);
                     terror.show();
                 }
-            },error: function (html){console.log(html);}
+            },error: function (html){}
         
         });
     }
@@ -191,6 +187,7 @@ button[type='button'] {
         //SAVE OPTIONS
         if(algo == "" || opt == "" ){
             sendToServer(key,receiverid, localStorage.getItem('sessOpt'), localStorage.getItem('sessAlgo'))
+            return;
         }
         localStorage.setItem('sessKey', key);
         localStorage.setItem('sessKeySize', keySize);
@@ -220,7 +217,25 @@ button[type='button'] {
 
     <?php if(isset($_GET['/connecting/']))
         echo '
+        var l = 0;
         var loading = setInterval(() => {
+            console.log(l);
+            if(l>= 2){
+                clearInterval(loading);
+                $.ajax({
+                    type: "POST",
+                    url: \'conex.php\',
+                    data: { 
+                        delete: true,
+                        userid: '.$_GET['/connecting/'].'
+                    },
+                    dataType: "JSON",
+                    success: function (html){},
+                    error: function (html){}
+                });
+                window.location.href ="?";
+
+            }
             $.ajax({
                 type: "POST",
                 url: \'conex.php\',
@@ -229,14 +244,14 @@ button[type='button'] {
                     userid: '.$_GET['/connecting/'].'
                 },
                 dataType: "JSON",
-                success: function (html){console.log(html);
+                success: function (html){
                     if(html.success){
                         clearInterval(loading);
                         window.location.href ="?/connected/='.$_GET['/connecting/'].'"; 
                     }
-                },error: function (html){console.log(html);}
+                },error: function (html){}
             });
-        //
+            l += 1;
         }, 5000);
         ';
     ?>
@@ -273,11 +288,12 @@ function AcceptInvite(idSender){
         url: 'conex.php',
         data: { connect: true, userid: idSender},
         dataType: "JSON",
-        success: function (html){
+        success: function (html){console.log(html);
             if(html.success){
                 var key = "";
+                var sk = localStorage.getItem('pk_encrypt');
                 for(i=0; i< html.key.length;i++)
-                    key += RSAdecrypt(localStorage.getItem('pk_encrypt'), html.key[i]);
+                    key += RSAdecrypt(sk, html.key[i]);
                 localStorage.setItem('sessKey',key);
                 localStorage.setItem('sessAlgo', html.options[0]);
                 localStorage.setItem('sessOpt',html.options[1]);
@@ -285,6 +301,16 @@ function AcceptInvite(idSender){
             }
         },
         error: function (html){console.log(html);}
+    });
+}
+function DeclineInvite(idSender){
+    $.ajax({
+        type: "POST",
+        url: 'conex.php',
+        data: { decline: true, userid: idSender},
+        dataType: "JSON",
+        success: function (html){},
+        error: function (html){}
     });
 }
 
@@ -329,7 +355,7 @@ function atualiza(){
                         Do you want to accept?\
                         <div class="mt-2 pt-2">\
                         <button type="button" class="btn btn-primary btn-sm" onclick="AcceptInvite('+idSender+')">Yes</button>\
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">No</button>\
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="DeclineInvite('+idSender+')" data-bs-dismiss="toast">No</button>\
                         </div>\
                     </div>');
                     $(".toast-container").append(tst);

@@ -14,12 +14,27 @@ function upd($a, $id){
 
 function feedfoward($a, $id){
     //TODO - make people online if not online
-    $tes = mysqli_query($a,"UPDATE online SET o_feedfoward=1  WHERE u_id = '$id'");
-    if(!$tes){
+    session_start();
+    if(!isset($_SESSION['u_id'])){
+        return false;
+    }
+    $id = $_SESSION['u_id'];
+    $res = mysqli_query($a, "SELECT u_id FROM online WHERE u_id = '$id';");
+    if(!$res){
+        return false;
+    }
+    if(mysqli_num_rows($res)<=0){
+        $tes1 = mysqli_query($a,"INSERT INTO online (u_id,o_feedfoward) VALUES ('$id',1);");
+        if(!$tes1){
+            return false;
+        }
+        return true;
+    }
+    $tes2 = mysqli_query($a,"UPDATE online SET o_feedfoward=1  WHERE u_id = '$id';");
+    if(!$tes2){
         return false;
     }
     return true;
-   
 }
 function pedidos($a, $id){
     $tes = mysqli_query($a,"SELECT u.u_name, r.rc_sender FROM users u, request_connection r where u.u_id = r.rc_sender and  r.rc_receiver = '$id'");

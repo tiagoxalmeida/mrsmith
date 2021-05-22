@@ -1,12 +1,20 @@
-<?php
- 
-$uniq = uniqid('file_',false).".enc";
-//opendir("uploads/");
-$myfile = fopen("uploads/file2.txt", "w") or die("Unable to open file!");
-/*if(!$enc_file){
-    $responseObject->success = false;
-    echo json_encode($responseObject);
-    exit;
-}*/
-fwrite($myfile,'$file');
-fclose($myfile);
+<script src="/js/jsencrypt.min.js"></script>
+<script>
+function RSAencrypt(publicKey, text){
+    var crypt = new JSEncrypt();
+    crypt.setPublicKey(publicKey);
+    return crypt.encrypt(text);
+}
+
+function RSAdecrypt(privateKey, text){
+    var crypt = new JSEncrypt();
+    crypt.setPrivateKey(privateKey);
+    return crypt.decrypt(text);
+}
+
+var v = RSAencrypt(localStorage.getItem('Pk_encrypt'),"texto");
+console.log(v);
+var d = RSAdecrypt(localStorage.getItem('pk_encrypt'), v);
+console.log(d);
+
+</script>

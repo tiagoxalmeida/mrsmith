@@ -1,5 +1,12 @@
 <?php
-    
+    if(session_status() == PHP_SESSION_NONE){
+        //session has not started
+        session_start();
+    }
+    if(isset($_SESSION['u_id'])){
+        header("Location: https://mrsmith.ml/inside/");
+        exit;
+    }
     include "../header.php";
 ?>
 <script>$('head title').text($('head title').text()+" - Login");</script>

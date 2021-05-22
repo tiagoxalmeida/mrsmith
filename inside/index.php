@@ -80,7 +80,7 @@ button[type='button'] {
                         </div>
                     </div>
                     <p class="mt-4">If you connect to a friend through invitation, the encryption algo and options are choosed by him.</p>
-                    <button type="button" class="btn btn-primary" onclick="Logout()">Logout</button>
+                    <a type="button" class="btn btn-primary" href="/login/logout.php">Logout</a>
                 </div>
             </section>
             
@@ -103,25 +103,6 @@ button[type='button'] {
         ?>
         
     </section><script>
-
-    function Logout(){
-        
-        $.ajax({
-            type: "POST",
-            url: "online.php",
-            data: {apagar:true},
-            dataType: "JSON",
-            success: function (html){console.log(html);
-                if(html.success){
-                    
-                    window.location.href ="/";
-                }
-              
-            },error: function (html){console.log(html);}
-        
-        });
-
-    }
     function RSAencrypt(publicKey, text){
         var crypt = new JSEncrypt();
         crypt.setPublicKey(publicKey);

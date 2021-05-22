@@ -57,20 +57,5 @@ if(isset($_POST['getOnline'])){
     exit;
 }
 
-else if(isset($_POST['apagar'])){
-    session_start();
-    $id = $_SESSION['u_id'];
-    $tes = mysqli_query($conn,"DELETE from online where u_id = '$id'");
-    if($tes){
-        $responseObject->success = true;
-        echo json_encode($responseObject);
-        exit;
-    }
-    session_unset(); 
-    $responseObject->success = false;
-    echo json_encode($responseObject);
-    exit;
-}
-
 
 include "../inc/close_con.php";

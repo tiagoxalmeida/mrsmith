@@ -66,11 +66,41 @@
                 $responseObject->fileName = $filename;
                 $responseObject->fileContents = $textencrypted;
                 $responseObject->fileEncrypted = $encrypted;
+                unlink($filedir);
 
-            }else if($encrypted == 2){
-
-            }else if($encrypted == 3){
-
+            }else if($encrypted == 2){ //se o ficheiro está assinado
+                function delete_files($target) {
+                    if(is_dir($target)){
+                        $files = glob( $target . '*', GLOB_MARK ); //GLOB_MARK adds a slash to directories returned
+                
+                        foreach( $files as $file ){
+                            delete_files( $file );      
+                        }
+                
+                        rmdir( $target );
+                    } elseif(is_file($target)) {
+                        unlink( $target );  
+                    }
+                }
+                if(!$tes = mysqli_query($conn,"SELECT u_public_sign_key  FROM users where u_id = '$userid'")){
+                    $responseObject->success = false;
+                    $respondeObject->error = "Query Error";
+                    echo json_encode($responseObject);
+                    exit;
+                }
+                $row = mysqli_fetch_assoc($tes);
+                $folder = $filedir;
+                $file = fopen($folder."/".$filename, "r");
+                $text = fread($file, filesize($folder."/".$filename));
+                fclose($file);
+                $file2 = fopen($folder."/sign.sig", "r");
+                $text2 = fread($file2, filesize($folder."/sign.sig"));
+                fclose($file2);
+                $responseObject->fileName = $filename;
+                $responseObject->fileContents = $text;
+                $responseObject->signature = $text2;
+                $responseObject->pubKey = $row['u_public_sign_key'];
+                $responseObject->fileEncrypted = $encrypted;
             }
             $responseObject->success = true;
             echo json_encode($responseObject);
@@ -268,6 +298,50 @@
                 echo json_encode($responseObject);
                 exit;
             }
+        }else if(isset($_POST['sendFileSign'])){
+            function writeFile($filename,$filecontents,$filedir){
+                $myfile = fopen($filedir."/".$filename, "w") or die("Unable to open file!");
+                fwrite($myfile, $filecontents);
+                fclose($myfile);
+            }
+            include "../inc/con_inc.php";   
+            session_start();
+            $user = $_SESSION['u_id'];
+            $c_last_file = $_POST['file_name'];
+            $file = $_POST['file_contents'];
+            $filedir = $_SERVER['DOCUMENT_ROOT']."/uploads/";
+            $uniq = uniqid('folder_',false);
+            if (!mkdir($filedir.$uniq,0700)){
+                $responseObject->success = false;
+                $respondeObject->error = "Server error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            if(!$tes = mysqli_query($conn,"SELECT u_private_sign_key  FROM users where u_id = '$user'")){
+                $responseObject->success = false;
+                $respondeObject->error = "Query Error";
+                echo json_encode($responseObject);
+                exit;
+            }
+            $row = mysqli_fetch_assoc($tes);
+            if(!openssl_sign($file, $signature, $row['u_private_sign_key'],OPENSSL_ALGO_SHA256)){
+                $responseObject->success = false;
+                $respondeObject->error = "Error in signature criation";
+                echo json_encode($responseObject);
+                exit;
+            }
+            writeFile("sign.sig",base64_encode($signature),$filedir.$uniq);
+            writeFile($c_last_file,$file,$filedir.$uniq);
+            $query = "UPDATE connected SET c_last_file = '$c_last_file', c_encrypted = 2, c_last_file_ext = '$uniq' WHERE c_sender = '$user'";
+            if(!mysqli_query($conn,$query)){
+                $responseObject->success = false;
+                $respondeObject->error = "Query Error";
+                echo json_encode($responseObject);
+                exit;
+            }       
+            $responseObject->success = true;
+            echo json_encode($responseObject);
+            exit;/**/
         }else if(isset($_POST['verifySender'])){
             include "../inc/con_inc.php";   
             session_start();

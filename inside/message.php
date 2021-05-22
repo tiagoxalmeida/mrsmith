@@ -51,6 +51,13 @@ echo '
         });
     }
 
+    function verify(fileContents,pubKey,signature){
+        var verify = new JSEncrypt();
+        verify.setPublicKey(pubKey);
+        var verified = verify.verify(fileContents, signature, CryptoJS.SHA256);
+        return verified;
+    }
+
     function conexao(){
         $.ajax({
             type: "POST",
@@ -63,6 +70,7 @@ echo '
                 }else{
                     switch(html.fileEncrypted){
                         case "0":  // normal with hmac
+
                         break;
                         case "1": // encrypted
                             var lastname = localStorage.getItem('lastFileName');
@@ -74,20 +82,37 @@ echo '
                                         <div>\
                                             <small>\
                                                 <div class="d-inline-block status-img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-short" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4z"/></svg></div>\
-                                                <p class="status d-inline"><a href="'+cleantext+'" download="'+html.fileName+'" onclick="received()">Download</a></p>'+
+                                                <p class="status d-inline">Encrypted <a href="'+cleantext+'" download="'+html.fileName+'" onclick="received()">Download</a></p>'+
                                             '</small>'+
                                             '<p class="file-title m-0">'+html.fileName+'</p></div></div></div>').appendTo($('#files-uploaded')).get(0).scrollIntoView();
                             }
                             
                         break;
                         case "2": // signed
-                            
+                            var lastname = localStorage.getItem('lastFileName');
+                            if(lastname != html.fileName){
+                                localStorage.setItem('lastFileName',html.fileName);
+                                console.log(verify(html.fileContents,html.pubKey,html.signature));
+                                if(verify(html.fileContents,html.pubKey,html.signature)){
+                                    $('<div class="file d-flex flex-row justify-content-start">\
+                                    <div class="border rounded p-3 m-3 mw-100 position-relative bg-light">\
+                                        <div>\
+                                            <small>\
+                                                <div class="d-inline-block status-img"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-short" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4z"/></svg></div>\
+                                                <p class="status d-inline">Verified <a href="'+html.fileContents+'" download="'+html.fileName+'" onclick="received()">Download</a></p>'+
+                                            '</small>'+
+                                            '<p class="file-title m-0">'+html.fileName+'</p></div></div></div>').appendTo($('#files-uploaded')).get(0).scrollIntoView();
+                                }else{
+                                    console.log('File not verified');
+                                }
+                                
+                            }
                         break;
                     }
                 }
             },
-            error: function (html){
-                window.location.href = '\?';
+            error: function (html){console.log(html);
+                //window.location.href = '\?';
             }
         });
     }
@@ -101,7 +126,8 @@ echo '
             success: function (html){
                 if(html.success){
                     $('.file.justify-content-start:last-child .status').html('Downloaded');
-                    $('.file.justify-content-end:last-child .status-img').html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder-check" viewBox="0 0 16 16"><path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"/><path d="M15.854 10.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.707 0l-1.5-1.5a.5.5 0 0 1 .707-.708l1.146 1.147 2.646-2.647a.5.5 0 0 1 .708 0z"/></svg>');
+                    $('.file.justify-content-start:last-child .status-img').html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder-check" viewBox="0 0 16 16"><path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z"/><path d="M15.854 10.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.707 0l-1.5-1.5a.5.5 0 0 1 .707-.708l1.146 1.147 2.646-2.647a.5.5 0 0 1 .708 0z"/></svg>');
+                    localStorage.setItem('lastFileName','');
                 }
             },
             error: function (html){
@@ -109,6 +135,7 @@ echo '
             }
         });
     }
+    
 
     setInterval(() => {
         conexao();
@@ -227,6 +254,7 @@ echo '
                         $('.file.justify-content-end:last-child .status-img').html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z"/></svg>');
                         $('.file.justify-content-end:last-child .file-title').html(filename);
                     }else{
+                        console.log('ola');
                         var h = '<div class="file d-flex flex-row justify-content-end">\
                             <div class="border rounded p-3 m-3 mw-100 position-relative">\
                                 <div>\
@@ -265,8 +293,7 @@ echo '
                                     success: function (html){
                                         console.log(html);
                                         if(html.success){
-                                            console.log($('.file.justify-content-end:last-child'));
-                                            $('.file.justify-content-end:last-child .status').html('Uploaded');
+                                            $('.file.justify-content-end:last-child .status').html('Encrypted and Uploaded');
                                             $('.file.justify-content-end:last-child .status-img').html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud" viewBox="0 0 16 16"><path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/></svg>');
                                             forceSend = false;
                                         }else{
@@ -301,7 +328,51 @@ echo '
                                 });
                             break;
                             case "2": //sign
-
+                                $.ajax({
+                                    type: "POST",
+                                    url: 'conex.php',
+                                    data: {
+                                        sendFileSign: true,
+                                        file_name: file.name,
+                                        file_contents: reader.result
+                                    },
+                                    dataType: "JSON",
+                                    success: function (html){
+                                        console.log(html);
+                                        if(html.success){
+                                            $('.file.justify-content-end:last-child .status').html('Uploaded and Signed');
+                                            $('.file.justify-content-end:last-child .status-img').html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud" viewBox="0 0 16 16"><path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/></svg>');
+                                            forceSend = false;
+                                        }else{
+                                            var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                                                                <div class="toast-header">\
+                                                                    <strong class="me-auto">Error!</strong>\
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                                                                </div>\
+                                                                <div class="toast-body">\
+                                                                    The message could not be sended - internal server error.\
+                                                                </div>\
+                                                            </div>');
+                                            $('.toast-container').append(toasterror);
+                                            var terror = new bootstrap.Toast(toasterror);
+                                            terror.show();
+                                        }
+                                    },
+                                    error: function (html){console.log(html);
+                                        var toasterror = $('<div class="toast bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">\
+                                                            <div class="toast-header">\
+                                                                <strong class="me-auto">Error!</strong>\
+                                                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\
+                                                            </div>\
+                                                            <div class="toast-body">\
+                                                                The message could not be sended - internal server error.\
+                                                            </div>\
+                                                        </div>');
+                                        $('.toast-container').append(toasterror);
+                                        var terror = new bootstrap.Toast(toasterror);
+                                        terror.show();
+                                    }
+                                });
                             break;
                         }
                         //retirar a chave
